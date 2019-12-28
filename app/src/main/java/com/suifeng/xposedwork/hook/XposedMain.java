@@ -1,11 +1,29 @@
 package com.suifeng.xposedwork.hook;
 
+import android.app.AndroidAppHelper;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.suifeng.xposedwork.util.Reflector;
+import com.suifeng.xposedwork.util.Utils;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import dalvik.system.PathClassLoader;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -40,10 +58,12 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
-
-        System.out.println("loadPackageParam processName: " + loadPackageParam.processName);
+        List<String> packageList = Utils.getHookPackage();
+        if (packageList.size() == 0) {
+            return;
+        }
         //将loadPackageParam的classloader替换为宿主程序Application的classloader,解决宿主程序存在多个.dex文件时,有时候ClassNotFound的问题
-        if ("com.guuidea.admoddemo".equals(loadPackageParam.packageName)) {
+        if (packageList.contains(loadPackageParam.packageName)) {
             XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -69,7 +89,6 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
         if (apkFile == null) {
             throw new RuntimeException("寻找模块apk失败");
         }
-        Log.i(TAG, "XposedMain: getApkClass apkFile = " + apkFile);
         //加载指定的hook逻辑处理类，并调用它的handleHook方法
         PathClassLoader pathClassLoader = new PathClassLoader(apkFile.getAbsolutePath(), ClassLoader.getSystemClassLoader());
 //        Class<?> cls = Class.forName(handleHookClass, true, pathClassLoader);
@@ -78,7 +97,7 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
     }
 
 
-    /*
+    /**
      * 根据包名构建目标Context,并调用getPackageCodePath()来定位apk
      */
     private File findApkFile(Context context, String modulePackageName) {
@@ -102,5 +121,7 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
 
         startupparam = startupParam;
     }
+
+
 }
 
