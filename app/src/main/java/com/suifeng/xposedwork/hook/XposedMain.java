@@ -1,29 +1,13 @@
 package com.suifeng.xposedwork.hook;
 
-import android.app.AndroidAppHelper;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
-import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
 
-import com.suifeng.xposedwork.util.Reflector;
 import com.suifeng.xposedwork.util.Utils;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import dalvik.system.PathClassLoader;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -92,8 +76,7 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
         //加载指定的hook逻辑处理类，并调用它的handleHook方法
         PathClassLoader pathClassLoader = new PathClassLoader(apkFile.getAbsolutePath(), ClassLoader.getSystemClassLoader());
 //        Class<?> cls = Class.forName(handleHookClass, true, pathClassLoader);
-        Class<?> cls = pathClassLoader.loadClass(handleHookClass);
-        return cls;
+        return pathClassLoader.loadClass(handleHookClass);
     }
 
 

@@ -1,18 +1,13 @@
 package com.suifeng.xposedwork.hookmodule;
 
-import android.util.Log;
-
 import com.suifeng.xposedwork.hook.HookStack;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 public abstract class ClassLoaderModule extends HookModule {
 
@@ -48,7 +43,7 @@ public abstract class ClassLoaderModule extends HookModule {
     /**
      * 从HookStack获取插件中的hook类列表
      *
-     * @return
+     * @return HookList
      */
     private HookList getPluginHookList(ClassLoader loader) {
         List<Class> hookPluginClassList = HookStack.getHookPluginClassList();
@@ -59,13 +54,7 @@ public abstract class ClassLoaderModule extends HookModule {
                 Constructor constructor = aClass.getConstructor(ClassLoader.class);
                 HookModule hookModule = (HookModule) constructor.newInstance(loader);
                 hookList.addHookModule(hookModule);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }

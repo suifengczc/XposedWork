@@ -2,8 +2,6 @@ package com.suifeng.xposedwork.util;
 
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -143,5 +142,36 @@ public class Utils {
             }
         }
         return config;
+    }
+
+    /**
+     * 打印object中所有field的值
+     *
+     * @param clz object的class
+     * @param object 实例
+     * @return object所有属性值组合后的String
+     */
+    public static String printObject(Class<?> clz, Object object) {
+        StringBuilder sb = new StringBuilder();
+        Field[] declaredFields = clz.getDeclaredFields();
+        for (Field field : declaredFields) {
+            field.setAccessible(true);
+            sb.append(field.getName());
+            sb.append(" = ");
+            try {
+                Object obj = field.get(object);
+                if (obj == null) {
+                    sb.append("null");
+                } else {
+                    sb.append(obj);
+                    sb.append(" --> ");
+                    sb.append(obj.getClass().toString());
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }
