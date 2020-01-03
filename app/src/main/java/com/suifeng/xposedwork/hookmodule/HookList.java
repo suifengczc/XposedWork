@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * 要hook的类列表
+ * @author suifengczc
  */
 public class HookList {
     public HookList() {
@@ -14,9 +15,9 @@ public class HookList {
     /**
      * HookModule的Map，以hook的类名为key
      */
-    private Map<String, HookModule> hookModuleMap;
+    private Map<String, BaseHookModule> hookModuleMap;
 
-    public void addHookModule(HookModule module) {
+    public void addHookModule(BaseHookModule module) {
         if (module == null) {
             return;
         }
@@ -24,7 +25,7 @@ public class HookList {
         hookModuleMap.put(className, module);
     }
 
-    public Map<String, HookModule> getHookModules() {
+    public Map<String, BaseHookModule> getHookModules() {
         return hookModuleMap;
     }
 

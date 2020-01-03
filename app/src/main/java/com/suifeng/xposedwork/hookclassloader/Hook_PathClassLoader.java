@@ -2,13 +2,13 @@ package com.suifeng.xposedwork.hookclassloader;
 
 import android.util.Log;
 
-import com.suifeng.xposedwork.hookmodule.ClassLoaderModule;
-import com.suifeng.xposedwork.hookmodule.HookBasicData;
-import com.suifeng.xposedwork.hookmodule.HookData;
+import com.suifeng.xposedwork.hookmodule.AbstractClassLoaderModule;
+import com.suifeng.xposedwork.hookmodule.HookMethodData;
+import com.suifeng.xposedwork.hookmodule.HookType;
 
 import de.robv.android.xposed.XC_MethodHook;
 
-public class Hook_PathClassLoader extends ClassLoaderModule {
+public class Hook_PathClassLoader extends AbstractClassLoaderModule {
 
     public Hook_PathClassLoader(ClassLoader classLoader) {
         super(classLoader);
@@ -17,7 +17,8 @@ public class Hook_PathClassLoader extends ClassLoaderModule {
     @Override
     protected void init() {
         className = "dalvik.system.PathClassLoader";
-        hookDatas.add(new HookData("", new Class[]{String.class, String.class, ClassLoader.class},
+        hookDatas.add(new HookMethodData("", HookType.HOOK_NORMAL_INIT,
+                String.class, String.class, ClassLoader.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -34,8 +35,9 @@ public class Hook_PathClassLoader extends ClassLoaderModule {
                         }
                         super.afterHookedMethod(param);
                     }
-                }, HookBasicData.HOOK_NORMAL_INIT));
-        hookDatas.add(new HookData("", new Class[]{String.class, ClassLoader.class},
+                }));
+        hookDatas.add(new HookMethodData("", HookType.HOOK_NORMAL_INIT,
+                String.class, ClassLoader.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -52,6 +54,6 @@ public class Hook_PathClassLoader extends ClassLoaderModule {
                         }
                         super.afterHookedMethod(param);
                     }
-                }, HookBasicData.HOOK_NORMAL_INIT));
+                }));
     }
 }

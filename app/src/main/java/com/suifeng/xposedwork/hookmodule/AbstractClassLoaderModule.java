@@ -9,16 +9,23 @@ import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
 
-public abstract class ClassLoaderModule extends HookModule {
+/**
+ * Hook ClassLoader相关类时使用的模板
+ * @author suifengczc
+ */
+public abstract class AbstractClassLoaderModule extends BaseHookModule {
 
 
     /**
      * @param classLoader 这里传入的是当前的classloader
      */
-    public ClassLoaderModule(ClassLoader classLoader) {
+    public AbstractClassLoaderModule(ClassLoader classLoader) {
         super(classLoader);
     }
 
+    /**
+     * 在init方法中设置className和hookDatas的值
+     */
     @Override
     protected abstract void init();
 
@@ -36,7 +43,7 @@ public abstract class ClassLoaderModule extends HookModule {
             return;
         }
         HookList hookPluginClassList = getPluginHookList(loader);
-        Map<String, HookModule> hookModules = hookPluginClassList.getHookModules();
+        Map<String, BaseHookModule> hookModules = hookPluginClassList.getHookModules();
         HookHelper.dealHook(loader, hookModules);
     }
 
@@ -52,7 +59,7 @@ public abstract class ClassLoaderModule extends HookModule {
             try {
                 //获取hook类的HookModule的构造方法反射创建实例
                 Constructor constructor = aClass.getConstructor(ClassLoader.class);
-                HookModule hookModule = (HookModule) constructor.newInstance(loader);
+                BaseHookModule hookModule = (BaseHookModule) constructor.newInstance(loader);
                 hookList.addHookModule(hookModule);
             } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                 e.printStackTrace();

@@ -2,56 +2,60 @@ package com.suifeng.xposedwork.hookmodule;
 
 import android.util.Log;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
+/**
+ * Hook 辅助类
+ *
+ * @author suifengczc
+ */
 public class HookHelper {
     private static final String TAG = "HookDemo";
 
     /**
      * 读取HookModule的HookData处理具体的hook方式
-     * @param classLoader
-     * @param hookModules
+     *
+     * @param classLoader 加载被hook类的ClassLoader
+     * @param hookModules 需要hook的模块
      */
-    public static void dealHook(ClassLoader classLoader, Map<String, HookModule> hookModules) {
-        Iterator<Map.Entry<String, HookModule>> iterator = hookModules.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, HookModule> next = iterator.next();
+    public static void dealHook(ClassLoader classLoader, Map<String, BaseHookModule> hookModules) {
+        for (Map.Entry<String, BaseHookModule> next : hookModules.entrySet()) {
             String clzName = next.getKey();
-            HookModule hookModule = next.getValue();
+            BaseHookModule hookModule = next.getValue();
             if (hookModule != null) {
-//                hookModule.setClassLoader(classLoader);
-                List<HookData> hookDatas = hookModule.getHookDatas();
-                for (HookData hookData : hookDatas) {
-                    if (hookData.hookType == HookBasicData.HOOK_NORMAL_METHOD) {
+                List<HookMethodData> hookDatas = hookModule.getHookDatas();
+                for (HookMethodData hookData : hookDatas) {
+                    if (hookData.hookType == HookType.HOOK_NORMAL_METHOD
+                            || hookData.hookType == HookType.HOOK_REPLACE_METHOD) {
                         XposedHelpers.findAndHookMethod(clzName,
                                 classLoader,
-                                hookData.methodName,
+                                hookData.hookTarget,
                                 hookData.hookVariableParams);
-                    } else if (hookData.hookType == HookBasicData.HOOK_NORMAL_INIT) {
+                    } else if (hookData.hookType == HookType.HOOK_NORMAL_INIT) {
                         XposedHelpers.findAndHookConstructor(clzName,
                                 classLoader,
                                 hookData.hookVariableParams);
-                    } else if (hookData.hookType == HookBasicData.HOOK_ALL_INIT) {
+                    } else if (hookData.hookType == HookType.HOOK_ALL_INIT) {
                         try {
-                            XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookData.methodHook);
+                            XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookData.getXcMethodHook());
                         } catch (ClassNotFoundException e) {
                             Log.e(TAG, "dealHook: when hookNormalClass cant found class " + clzName);
                         }
-                    } else if (hookData.hookType == HookBasicData.HOOK_ALL_METHOD) {
+                    } else if (hookData.hookType == HookType.HOOK_ALL_METHOD
+                            || hookData.hookType == HookType.HOOK_REPLACE_ALL_METHOD) {
                         try {
-                            XposedBridge.hookAllMethods(classLoader.loadClass(clzName), hookData.methodName, hookData.methodHook);
+                            XposedBridge.hookAllMethods(classLoader.loadClass(clzName), hookData.hookTarget, hookData.getXcMethodHook());
                         } catch (ClassNotFoundException e) {
                             Log.e(TAG, "dealHook: when hookNormalClass cant found class " + clzName);
                         }
-                    } else if (hookData.hookType == HookBasicData.HOOK_GET_STATIC_FIELD) {
+                    } else if (hookData.hookType == HookType.HOOK_GET_STATIC_FIELD) {
                         try {
-                            Object staticObjectField = XposedHelpers.getStaticObjectField(classLoader.loadClass(clzName), hookData.methodName);
-                            Log.i(TAG, "dealHook: hook " + clzName + " --> " + hookData.methodName + " == " + staticObjectField);
+                            Object staticObjectField = XposedHelpers.getStaticObjectField(classLoader.loadClass(clzName), hookData.hookTarget);
+                            Log.i(TAG, "dealHook: hook " + clzName + " --> " + hookData.hookTarget + " == " + staticObjectField);
                         } catch (ClassNotFoundException e) {
                             Log.e(TAG, "dealHook: when hookNormalClass cant found class " + clzName);
                         }

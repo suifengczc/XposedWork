@@ -43,7 +43,7 @@ public class Utils {
                     Object[] objArr = (Object[]) result;
                     sb.append(concatArrays(objArr));
                 } else {
-                    sb.append(result.toString());
+                    sb.append(result.getClass().toString()).append(" --> ").append(result.toString());
                 }
             } else {
                 sb.append("result is null ");

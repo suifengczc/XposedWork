@@ -1,9 +1,9 @@
 package com.suifeng.xposedwork.hook;
 
 import com.suifeng.xposedwork.hookclassloader.Hook_PathClassLoader;
+import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.hookmodule.HookList;
-import com.suifeng.xposedwork.hookmodule.HookModule;
 import com.suifeng.xposedwork.hookplugin.Hook_ct;
 import com.suifeng.xposedwork.util.Utils;
 
@@ -22,7 +22,7 @@ public class HookStack implements IXposedHookLoadPackage {
     private static List<Class> hookPluginClassList;
 
     public HookStack() {
-        //从
+        //从hook_package.json中获取需要hook的包名
         hookPackageName = Utils.getHookPackage();
 
         //plugin hook
@@ -57,7 +57,7 @@ public class HookStack implements IXposedHookLoadPackage {
      */
     private void hookNormalClass(ClassLoader classLoader) {
         setHookClasses(classLoader);
-        Map<String, HookModule> hookModules = hookClassList.getHookModules();
+        Map<String, BaseHookModule> hookModules = hookClassList.getHookModules();
         HookHelper.dealHook(classLoader, hookModules);
     }
 

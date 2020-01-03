@@ -1,12 +1,12 @@
 package com.suifeng.xposedwork.hookclassloader;
 
-import com.suifeng.xposedwork.hookmodule.ClassLoaderModule;
-import com.suifeng.xposedwork.hookmodule.HookBasicData;
-import com.suifeng.xposedwork.hookmodule.HookData;
+import com.suifeng.xposedwork.hookmodule.AbstractClassLoaderModule;
+import com.suifeng.xposedwork.hookmodule.HookMethodData;
+import com.suifeng.xposedwork.hookmodule.HookType;
 
 import de.robv.android.xposed.XC_MethodHook;
 
-public class Hook_DexClassLoader extends ClassLoaderModule {
+public class Hook_DexClassLoader extends AbstractClassLoaderModule {
 
     public Hook_DexClassLoader(ClassLoader classLoader) {
         super(classLoader);
@@ -15,7 +15,8 @@ public class Hook_DexClassLoader extends ClassLoaderModule {
     @Override
     protected void init() {
         className = "dalvik.system.DexClassLoader";
-        hookDatas.add(new HookData("", new Class[]{String.class, String.class, String.class, ClassLoader.class},
+        hookDatas.add(new HookMethodData("", HookType.HOOK_NORMAL_INIT,
+                String.class, String.class, String.class, ClassLoader.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -27,6 +28,6 @@ public class Hook_DexClassLoader extends ClassLoaderModule {
                         hookPluginClasses(param);
                         super.afterHookedMethod(param);
                     }
-                }, HookBasicData.HOOK_NORMAL_INIT));
+                }));
     }
 }

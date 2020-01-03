@@ -19,17 +19,23 @@ Hook功能的外部入口，由Xposed调用。通过动态加载的方式实现�
 ## HookStack
 Hook逻辑的唯一入口，在HookStack的`setHookClasses()`方法中设置了需要Hook的类，基本上在使用过程中只需要修改`setHookClasses()`中的代码动态修改需要Hook的类
 
-## HookModule
+## BaseHookModule
 Hook逻辑的抽象类，里面包含了`className`(被Hook的类全限定类名)，`hookDatas`(Hook数据类)，`classLoader`(构造函数传入的加载Hook类的ClassLoader)。
 一个HookModule可以包含多个HookData，表示对当前类的多个方法或参数Hook。
 
 ## HookData
-一个HookData代表一个具体Hook逻辑的数据类，包含了例如被hook的方法，方法的传参类型，XC_MethodHook等。
+一个HookData代表一个具体Hook逻辑的数据类，包含了例如被hook的方法名或参数名，HookType。
 
-## ClassLoaderModule
+## HookMethodData
+hook method时创建的hook相关的参数
+
+## HookFieldData
+hook field时创建的hook相关的参数
+
+## AbstractClassLoaderModule
 继承自HookModule，当Hook ClassLoader相关的类时使用。
 
-## PluginClassModule
+## AbstractPluginClassModule
 继承自HookModule，当Hook 动态加载的插件中的类时使用。
 
 ## Reflector
@@ -44,6 +50,35 @@ Hook逻辑的抽象类，里面包含了`className`(被Hook的类全限定类名
 ```
 
 2. 编写继承自HookModule的具体Hook逻辑类
+``` java
+public class HookTest extends BaseHookModule {
+    
+    public HookTest(ClassLoader classLoader) {
+        super(classLoader);
+    }
+
+    @Override
+    protected void init() {
+        className = "com.suifeng.test";
+        hookDatas.add(new HookMethodData("testMethod", HookType.HOOK_NORMAL_METHOD,
+                int.class, String.class, boolean.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        //do something
+                        super.beforeHookedMethod(param);
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        //do something
+                        super.afterHookedMethod(param);
+                    }
+                }));
+    }
+}
+
+```
 
 3. 在HookStack的setHookClasses方法中添加具体Hook类，需要注意的是如果是Hook的当前的app下的类就添加到hookClassList。如果是Hook app动态加载的包中的类，就添加到hookPluginClassList。
 ``` java

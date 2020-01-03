@@ -2,15 +2,15 @@ package com.suifeng.xposedwork.hookclassloader;
 
 import android.util.Log;
 
-import com.suifeng.xposedwork.hookmodule.ClassLoaderModule;
-import com.suifeng.xposedwork.hookmodule.HookBasicData;
-import com.suifeng.xposedwork.hookmodule.HookData;
+import com.suifeng.xposedwork.hookmodule.AbstractClassLoaderModule;
+import com.suifeng.xposedwork.hookmodule.HookMethodData;
+import com.suifeng.xposedwork.hookmodule.HookType;
 
 import java.io.File;
 
 import de.robv.android.xposed.XC_MethodHook;
 
-public class Hook_BaseDexClassLoader extends ClassLoaderModule {
+public class Hook_BaseDexClassLoader extends AbstractClassLoaderModule {
     public Hook_BaseDexClassLoader(ClassLoader classLoader) {
         super(classLoader);
     }
@@ -18,8 +18,8 @@ public class Hook_BaseDexClassLoader extends ClassLoaderModule {
     @Override
     protected void init() {
         className = "dalvik.system.BaseDexClassLoader";
-        hookDatas.add(new HookData("",
-                new Class[]{String.class, File.class, String.class, ClassLoader.class},
+        hookDatas.add(new HookMethodData("", HookType.HOOK_NORMAL_INIT,
+                String.class, File.class, String.class, ClassLoader.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -33,7 +33,7 @@ public class Hook_BaseDexClassLoader extends ClassLoaderModule {
                         hookPluginClasses(param);
                         super.afterHookedMethod(param);
                     }
-                }, HookBasicData.HOOK_NORMAL_INIT));
+                }));
     }
 
 

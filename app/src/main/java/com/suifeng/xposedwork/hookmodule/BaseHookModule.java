@@ -5,8 +5,9 @@ import java.util.List;
 
 /**
  * HOOK模板类
+ * @author suifengczc
  */
-public abstract class HookModule {
+public abstract class BaseHookModule {
     protected static final String TAG = "HookDemo";
 
     /**
@@ -17,7 +18,7 @@ public abstract class HookModule {
     /**
      * HookData列表
      */
-    protected List<HookData> hookDatas;
+    protected List<HookMethodData> hookDatas;
 
 
     /**
@@ -26,7 +27,7 @@ public abstract class HookModule {
     protected ClassLoader classLoader;
 
 
-    public HookModule(ClassLoader classLoader) {
+    public BaseHookModule(ClassLoader classLoader) {
         hookDatas = new ArrayList<>();
         this.classLoader = classLoader;
         init();
@@ -46,7 +47,7 @@ public abstract class HookModule {
         return className;
     }
 
-    public List<HookData> getHookDatas() {
+    public List<HookMethodData> getHookDatas() {
         return hookDatas;
     }
 
