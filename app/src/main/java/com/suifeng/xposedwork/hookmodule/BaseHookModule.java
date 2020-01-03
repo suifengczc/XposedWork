@@ -18,7 +18,7 @@ public abstract class BaseHookModule {
     /**
      * HookData列表
      */
-    protected List<HookMethodData> hookDatas;
+    protected List<HookData> hookDatas;
 
 
     /**
@@ -47,7 +47,7 @@ public abstract class BaseHookModule {
         return className;
     }
 
-    public List<HookMethodData> getHookDatas() {
+    public List<HookData> getHookDatas() {
         return hookDatas;
     }
 

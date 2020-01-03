@@ -10,10 +10,6 @@ import de.robv.android.xposed.XC_MethodHook;
 public class HookMethodData extends HookData {
 
     /**
-     * XC_MethodHook
-     */
-//    XC_MethodHook methodHook;
-    /**
      * 组合了方法传参类型和XC_MethodHook
      */
     Object[] hookVariableParams;
@@ -29,7 +25,6 @@ public class HookMethodData extends HookData {
         if (variableParams.length == 0 || !(variableParams[variableParams.length - 1] instanceof XC_MethodHook)) {
             throw new IllegalArgumentException("no callback defined");
         }
-//        this.methodHook = ((XC_MethodHook) variableParams[variableParams.length - 1]);
         this.hookVariableParams = variableParams;
     }
 
