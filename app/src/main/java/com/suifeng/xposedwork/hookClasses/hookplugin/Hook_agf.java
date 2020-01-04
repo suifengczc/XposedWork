@@ -1,4 +1,4 @@
-package com.suifeng.xposedwork.hookplugin;
+package com.suifeng.xposedwork.hookClasses.hookplugin;
 
 import android.util.Log;
 

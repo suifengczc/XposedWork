@@ -1,4 +1,4 @@
-package com.suifeng.xposedwork.hookclassloader;
+package com.suifeng.xposedwork.hookClasses.hookclassloader;
 
 import com.suifeng.xposedwork.hookmodule.AbstractClassLoaderModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;

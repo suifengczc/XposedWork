@@ -1,10 +1,10 @@
 package com.suifeng.xposedwork.hook;
 
-import com.suifeng.xposedwork.hookclassloader.Hook_PathClassLoader;
+import com.suifeng.xposedwork.hookClasses.hookclassloader.Hook_PathClassLoader;
+import com.suifeng.xposedwork.hookClasses.hookplugin.Hook_ct;
 import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.hookmodule.HookList;
-import com.suifeng.xposedwork.hookplugin.Hook_ct;
 import com.suifeng.xposedwork.util.Utils;
 
 import java.util.ArrayList;
@@ -15,10 +15,18 @@ import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookStack implements IXposedHookLoadPackage {
-    private static final String TAG = "HookDemo";
 
+    /**
+     * 需要hook的包名list
+     */
     private static List<String> hookPackageName;
+    /**
+     * 需要hook的本地类list
+     */
     private static HookList hookClassList;
+    /**
+     * 需要hook的插件中的类list
+     */
     private static List<Class> hookPluginClassList;
 
     public HookStack() {

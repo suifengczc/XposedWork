@@ -20,8 +20,7 @@ public class HookMethodData extends HookData {
      * @param variableParams 方法传参拼接XC_MethodHook
      */
     public HookMethodData(String hookTarget, HookType hookType, Object... variableParams) {
-        this.hookTarget = hookTarget;
-        this.hookType = hookType;
+        super(hookTarget, hookType);
         if (variableParams.length == 0 || !(variableParams[variableParams.length - 1] instanceof XC_MethodHook)) {
             throw new IllegalArgumentException("no callback defined");
         }

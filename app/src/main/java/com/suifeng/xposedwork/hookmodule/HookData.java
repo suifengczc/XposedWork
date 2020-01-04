@@ -9,4 +9,9 @@ public abstract class HookData {
      * hook type {@link HookType}
      */
     HookType hookType;
+
+    public HookData(String hookTarget, HookType hookType) {
+        this.hookTarget = hookTarget;
+        this.hookType = hookType;
+    }
 }

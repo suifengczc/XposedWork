@@ -27,28 +27,32 @@ public class HookHelper {
             String clzName = next.getKey();
             BaseHookModule hookModule = next.getValue();
             if (hookModule != null) {
-                List<HookMethodData> hookDatas = hookModule.getHookDatas();
-                for (HookMethodData hookData : hookDatas) {
+                List<HookData> hookDatas = hookModule.getHookDatas();
+                for (HookData hookData : hookDatas) {
                     if (hookData.hookType == HookType.HOOK_NORMAL_METHOD
                             || hookData.hookType == HookType.HOOK_REPLACE_METHOD) {
+                        HookMethodData hookMethodData = (HookMethodData) hookData;
                         XposedHelpers.findAndHookMethod(clzName,
                                 classLoader,
-                                hookData.hookTarget,
-                                hookData.hookVariableParams);
+                                hookMethodData.hookTarget,
+                                hookMethodData.hookVariableParams);
                     } else if (hookData.hookType == HookType.HOOK_NORMAL_INIT) {
+                        HookMethodData hookMethodData = (HookMethodData) hookData;
                         XposedHelpers.findAndHookConstructor(clzName,
                                 classLoader,
-                                hookData.hookVariableParams);
+                                hookMethodData.hookVariableParams);
                     } else if (hookData.hookType == HookType.HOOK_ALL_INIT) {
+                        HookMethodData hookMethodData = (HookMethodData) hookData;
                         try {
-                            XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookData.getXcMethodHook());
+                            XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookMethodData.getXcMethodHook());
                         } catch (ClassNotFoundException e) {
                             Log.e(TAG, "dealHook: when hookNormalClass cant found class " + clzName);
                         }
                     } else if (hookData.hookType == HookType.HOOK_ALL_METHOD
                             || hookData.hookType == HookType.HOOK_REPLACE_ALL_METHOD) {
+                        HookMethodData hookMethodData = (HookMethodData) hookData;
                         try {
-                            XposedBridge.hookAllMethods(classLoader.loadClass(clzName), hookData.hookTarget, hookData.getXcMethodHook());
+                            XposedBridge.hookAllMethods(classLoader.loadClass(clzName), hookMethodData.hookTarget, hookMethodData.getXcMethodHook());
                         } catch (ClassNotFoundException e) {
                             Log.e(TAG, "dealHook: when hookNormalClass cant found class " + clzName);
                         }

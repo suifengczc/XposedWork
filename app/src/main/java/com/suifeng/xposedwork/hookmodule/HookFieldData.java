@@ -8,7 +8,6 @@ package com.suifeng.xposedwork.hookmodule;
 public class HookFieldData extends HookData {
 
     public HookFieldData(String hookTarget, HookType hookType) {
-        this.hookTarget = hookTarget;
-        this.hookType = hookType;
+        super(hookTarget, hookType);
     }
 }

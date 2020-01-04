@@ -15,6 +15,17 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug{
+            signingConfig signingConfigs.debug
+        }
+    }
+    signingConfigs{
+        debug{
+            keyAlias "xposed"
+            keyPassword "123456"
+            storeFile file("../keystore/XposedTest.jks")
+            storePassword "123456"
+        }
     }
 }
 
