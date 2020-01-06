@@ -3,6 +3,7 @@ package com.suifeng.xposedwork.hookmodule;
 
 /**
  * hook type
+ *
  * @author suifengczc
  */
 public enum HookType {
@@ -38,7 +39,18 @@ public enum HookType {
     /**
      * hook all methods of the same name in the target class and replace code
      */
-    HOOK_REPLACE_ALL_METHOD;
+    HOOK_REPLACE_ALL_METHOD,
+
+
+    /**
+     * hook constructor in target class and replace code
+     */
+    HOOK_REPLACE_INIT,
+
+    /**
+     * hook all constructors in target class and replace code
+     */
+    HOOK_REPLACE_ALL_INIT,
 
 
 }

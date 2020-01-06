@@ -36,12 +36,14 @@ public class HookHelper {
                                 classLoader,
                                 hookMethodData.hookTarget,
                                 hookMethodData.hookVariableParams);
-                    } else if (hookData.hookType == HookType.HOOK_NORMAL_INIT) {
+                    } else if (hookData.hookType == HookType.HOOK_NORMAL_INIT
+                            || hookData.hookType == HookType.HOOK_REPLACE_INIT) {
                         HookMethodData hookMethodData = (HookMethodData) hookData;
                         XposedHelpers.findAndHookConstructor(clzName,
                                 classLoader,
                                 hookMethodData.hookVariableParams);
-                    } else if (hookData.hookType == HookType.HOOK_ALL_INIT) {
+                    } else if (hookData.hookType == HookType.HOOK_ALL_INIT
+                            || hookData.hookType == HookType.HOOK_REPLACE_ALL_INIT) {
                         HookMethodData hookMethodData = (HookMethodData) hookData;
                         try {
                             XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookMethodData.getXcMethodHook());
