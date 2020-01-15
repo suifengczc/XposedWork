@@ -88,7 +88,7 @@ public class Utils {
      * @return 包名list
      */
     public static List<String> getHookPackage() {
-        String config = getConfigFromAssets();
+        String config = getStringFromAssets("hook_package.json");
         List<String> packageList = new ArrayList<>();
         if (!TextUtils.isEmpty(config)) {
             JSONObject jsonObject = null;
@@ -107,13 +107,12 @@ public class Utils {
     }
 
     /**
-     * 从模块的assets下获取hook_package.json文件中的配置
+     * 获取当前模块的实际包名路径
+     * 例如/data/app/com.xxx.xxxx-1/base.apk
      *
-     * @return json字符串
+     * @return 包名路径
      */
-    private static String getConfigFromAssets() {
-        String config = "";
-        //因为刚开始的时候还没有context，所以直接读取模块在/data/app下的base.apk，从压缩包中读取文件
+    public static String getModulePath() {
         String dataPath = Environment.getDataDirectory().getAbsolutePath();
         String appPath = dataPath + File.separator + "app";
         String packagePath = "";
@@ -124,30 +123,79 @@ public class Utils {
                 break;
             }
         }
-        if (!TextUtils.isEmpty(packagePath)) {
-            String basePath = packagePath + File.separator + "base.apk";
+        return TextUtils.isEmpty(packagePath) ? packagePath : packagePath + File.separator + "base.apk";
+    }
+
+    /**
+     * 从assets下读取文件内容
+     *
+     * @param basePath base.apk路径
+     * @param filePath 文件在assets下的路径
+     * @return 读到的文件InputStream
+     */
+    public static InputStream getInputStreamFromAssets(String basePath, String filePath) {
+        if (!TextUtils.isEmpty(basePath)) {
             try {
-                ZipFile zipFile = new ZipFile(basePath);
-                ZipEntry ze = zipFile.getEntry("assets/hook_package.json");
-                InputStream inputStream = zipFile.getInputStream(ze);
+                ZipFile apkFile = new ZipFile(basePath);
+                ZipEntry fileEntry = apkFile.getEntry("assets/" + filePath);
+                return apkFile.getInputStream(fileEntry);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 从assets下读取文件内容返回byte[]
+     *
+     * @param basePath base.apk路径
+     * @param filePath 文件在assets下的路径
+     * @return 读到的byte[]
+     */
+    public static byte[] getBytesFromAssets(String basePath, String filePath) {
+        InputStream inputStream = getInputStreamFromAssets(basePath, filePath);
+        byte[] buf = null;
+        try {
+            buf = new byte[inputStream.available()];
+            inputStream.read(buf);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return buf;
+    }
+
+    /**
+     * 从模块的assets下获取hook_package.json文件中的配置
+     *
+     * @param filePath 要读取的assets下的文件路径，路径中不包括assets
+     * @return string
+     */
+    private static String getStringFromAssets(String filePath) {
+        String str = "";
+        //因为刚开始的时候还没有context，所以直接读取模块在/data/app下的base.apk，从压缩包中读取文件
+        String packagePath = getModulePath();
+        InputStream inputStream = getInputStreamFromAssets(packagePath, filePath);
+        if (inputStream != null) {
+            try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 StringBuilder sb = new StringBuilder();
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
-                config = sb.toString();
+                str = sb.toString();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return config;
+        return str;
     }
 
     /**
      * 打印object中所有field的值
      *
-     * @param clz object的class
+     * @param clz    object的class
      * @param object 实例
      * @return object所有属性值组合后的String
      */
