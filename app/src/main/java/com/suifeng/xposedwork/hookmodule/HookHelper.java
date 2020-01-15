@@ -61,7 +61,12 @@ public class HookHelper {
                     } else if (hookData.hookType == HookType.HOOK_GET_STATIC_FIELD) {
                         try {
                             Object staticObjectField = XposedHelpers.getStaticObjectField(classLoader.loadClass(clzName), hookData.hookTarget);
-                            Log.i(TAG, "dealHook: hook " + clzName + " --> " + hookData.hookTarget + " == " + staticObjectField);
+                            HookFieldData hookFieldData = (HookFieldData) hookData;
+                            if (hookFieldData.callback != null) {
+                                hookFieldData.callback.getFieldValue(staticObjectField);
+                            } else {
+                                Log.i(TAG, "dealHook: hook " + clzName + " --> " + hookData.hookTarget + " == " + staticObjectField);
+                            }
                         } catch (ClassNotFoundException e) {
                             Log.e(TAG, "dealHook: when hookNormalClass cant found class " + clzName);
                         }
