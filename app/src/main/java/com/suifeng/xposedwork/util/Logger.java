@@ -9,7 +9,7 @@ public class Logger {
     public static final String TAG = "HookDemo";
 
     public static void logi(String msg) {
-        Logger.logi(msg);
+        Log.i(TAG, msg);
     }
 
     public static void loge(String msg) {
