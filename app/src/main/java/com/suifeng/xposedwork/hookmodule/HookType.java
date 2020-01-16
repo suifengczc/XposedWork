@@ -32,6 +32,11 @@ public enum HookType {
     HOOK_GET_STATIC_FIELD,
 
     /**
+     * hook static field in the target class and set it's value
+     */
+    HOOK_SET_STATIC_FIELD,
+
+    /**
      * hook target method in the target class and replace code
      */
     HOOK_REPLACE_METHOD,

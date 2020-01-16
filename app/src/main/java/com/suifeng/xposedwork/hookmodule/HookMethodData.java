@@ -21,6 +21,7 @@ public class HookMethodData extends HookData {
      */
     public HookMethodData(String hookTarget, HookType hookType, Object... variableParams) {
         super(hookTarget, hookType);
+        //校验可变长参数最后一位是否XC_MethodHook类型
         if (variableParams.length == 0 || !(variableParams[variableParams.length - 1] instanceof XC_MethodHook)) {
             throw new IllegalArgumentException("no callback defined");
         }

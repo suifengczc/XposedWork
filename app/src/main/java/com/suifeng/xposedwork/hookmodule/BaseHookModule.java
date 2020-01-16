@@ -8,8 +8,6 @@ import java.util.List;
  * @author suifengczc
  */
 public abstract class BaseHookModule {
-    protected static final String TAG = "HookDemo";
-
     /**
      * 被hook的类名
      */

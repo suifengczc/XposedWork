@@ -20,14 +20,12 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * xposed模块的入口，实现免重启
  */
 public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit {
-    private static final String TAG = "HookDemo";
-
     private StartupParam startupparam;
 
     /**
      * 当前Xposed模块的包名,方便寻找apk文件
      */
-    private final static String modulePackageName = "com.suifeng.xposedwork";
+    private final static String MODULE_PACKAGE_NAME = "com.suifeng.xposedwork";
     /**
      * 实际hook逻辑处理类
      */
@@ -53,9 +51,10 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     Context context = (Context) param.args[0];
                     loadPackageParam.classLoader = context.getClassLoader();
-                    Class<?> cls = getApkClass(context, modulePackageName, handleHookClass);
+                    Class<?> cls = getApkClass(context, MODULE_PACKAGE_NAME, handleHookClass);
                     Object instance = cls.newInstance();
                     try {
+                        //暂时无用，HookStack没有添加initZygote方法
                         cls.getDeclaredMethod(initMethod, startupparam.getClass()).invoke(instance, startupparam);
                     } catch (NoSuchMethodException e) {
                         // 找不到initZygote方法

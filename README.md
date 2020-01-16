@@ -41,6 +41,13 @@ hook field时创建的hook相关的参数
 ## Reflector
 反射工具类，借用自滴滴的VirtualApk项目
 
+## HookHelper
+Hook帮助类
+- 添加具体HookData时不需要自己创建，只需要调用HookHelper的对应方法创建对应的HookData，
+减少创建HookData时总是写多余代码。
+- 处理BaseHookModule中的所有HookData
+
+
 # 使用介绍
 1. 在assets下的hook_package.json下添加需要hook的包名，格式如下：
 ``` json
@@ -60,18 +67,18 @@ public class HookTest extends BaseHookModule {
     @Override
     protected void init() {
         className = "com.suifeng.test";
-        hookDatas.add(new HookMethodData("testMethod", HookType.HOOK_NORMAL_METHOD,
-                int.class, String.class, boolean.class,
+        hookDatas.add(HookHelper.hookMethod("testMethod",
+                int.class, String.class, long.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        //do something
+                        //dosomething
                         super.beforeHookedMethod(param);
                     }
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        //do something
+                        //dosomething
                         super.afterHookedMethod(param);
                     }
                 }));
@@ -93,6 +100,8 @@ public class HookTest extends BaseHookModule {
 
 4. 在修改了xposed模块代码后需要重启被hook的apk才能使新代码生效，但不需要重启设备
 
-
+# 缺点
+- 在HookData中需要手写`className = "com.suifeng.test";`不方便
+- 在HookData中需要用`hookDatas.add(HookHelper.hookMethod(xxxxxx))`方式添加需要hook的逻辑，应该有更好的实现方式
 
 未完待续，keep coding...

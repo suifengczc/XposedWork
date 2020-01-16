@@ -1,10 +1,11 @@
-package com.suifeng.xposedwork.hookClasses.hookplugin;
+package com.suifeng.xposedwork.hookclasses.hookplugin;
 
 import android.util.Log;
 
 import com.suifeng.xposedwork.hookmodule.AbstractPluginClassModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
+import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Utils;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -28,13 +29,13 @@ public class Hook_agf extends AbstractPluginClassModule {
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        Log.i(TAG, "hook agf a : before \n" + Utils.concatParams(param));
+                        Logger.logi("hook agf a : before \n" + Utils.concatParams(param));
                         super.beforeHookedMethod(param);
                     }
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Log.i(TAG, "hook agf a : after " + Utils.concatResult(param));
+                        Logger.logi("hook agf a : after " + Utils.concatResult(param));
                         super.afterHookedMethod(param);
                     }
                 }));

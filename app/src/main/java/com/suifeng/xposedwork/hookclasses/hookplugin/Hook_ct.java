@@ -1,4 +1,4 @@
-package com.suifeng.xposedwork.hookClasses.hookplugin;
+package com.suifeng.xposedwork.hookclasses.hookplugin;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
@@ -7,6 +7,7 @@ import android.util.Log;
 import com.suifeng.xposedwork.hookmodule.AbstractPluginClassModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
+import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Reflector;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class Hook_ct extends AbstractPluginClassModule {
                         Class xClz = loadClass("com.google.android.gms.ads.internal.client.x");
                         Method dMethod = xClz.getMethod("d");
                         Object n = dMethod.invoke(null);
-                        Log.i(TAG, "hook ct a : before  n = " + n + " class = " + n.getClass().toString());
+                        Logger.logi("hook ct a : before  n = " + n + " class = " + n.getClass().toString());
                         Reflector nRef = Reflector.on("com.google.android.gms.ads.internal.config.n", false, classLoader);
                         Object c = nRef.field("c").get(n);
                         Object d = nRef.field("d").get(n);
@@ -46,24 +47,24 @@ public class Hook_ct extends AbstractPluginClassModule {
                         Object f = nRef.field("f").get(n);
                         Object g = nRef.field("g").get(n);
                         Object h = nRef.field("h").get(n);
-                        Log.i(TAG, "hook ct a : before  c = " + c + " class = " + c.getClass().toString());
-                        Log.i(TAG, "hook ct a : before  d = " + d + " class = " + d.getClass().toString());
-                        Log.i(TAG, "hook ct a : before  e = " + e + " class = " + e.getClass().toString());
-                        Log.i(TAG, "hook ct a : before  f = " + f + " class = " + f.getClass().toString());
-                        Log.i(TAG, "hook ct a : before  g = " + g + " class = " + g.getClass().toString());
-                        Log.i(TAG, "hook ct a : before  h = " + h + " class = " + h.getClass().toString());
-                        Log.i(TAG, "hook ct a : before  h contains gads:gestures:bs:enabled = " + h.toString().contains("gads:gestures:bs:enabled"));
+                        Logger.logi("hook ct a : before  c = " + c + " class = " + c.getClass().toString());
+                        Logger.logi("hook ct a : before  d = " + d + " class = " + d.getClass().toString());
+                        Logger.logi("hook ct a : before  e = " + e + " class = " + e.getClass().toString());
+                        Logger.logi("hook ct a : before  f = " + f + " class = " + f.getClass().toString());
+                        Logger.logi("hook ct a : before  g = " + g + " class = " + g.getClass().toString());
+                        Logger.logi("hook ct a : before  h = " + h + " class = " + h.getClass().toString());
+                        Logger.logi("hook ct a : before  h contains gads:gestures:bs:enabled = " + h.toString().contains("gads:gestures:bs:enabled"));
                         Reflector pRef = Reflector.on("com.google.android.gms.ads.internal.config.p", false, classLoader);
                         Object bw = pRef.field("bw").get();
                         Reflector cRef = Reflector.on("com.google.android.gms.ads.internal.config.c", false, classLoader);
                         Object a = cRef.field("a").get(bw);
-                        Log.i(TAG, "hook ct a : before  c.a = " + a + " class = " + a.getClass().toString());
+                        Logger.logi("hook ct a : before  c.a = " + a + " class = " + a.getClass().toString());
                         SharedPreferences sp = (SharedPreferences) e;
                         boolean contains = sp.contains("gads:gestures:bs:enabled");
                         if (contains) {
-                            Log.i(TAG, "hook ct a : before sp contains = " + sp.getBoolean("gads:gestures:bs:enabled", false));
+                            Logger.logi("hook ct a : before sp contains = " + sp.getBoolean("gads:gestures:bs:enabled", false));
                         } else {
-                            Log.i(TAG, "hook ct a : before sp not contains = ");
+                            Logger.logi("hook ct a : before sp not contains = ");
                         }
                         File storageDir = Environment.getExternalStorageDirectory();
                         File file = new File(storageDir, "outctbefore.txt");
@@ -88,7 +89,7 @@ public class Hook_ct extends AbstractPluginClassModule {
                         Class xClz = loadClass("com.google.android.gms.ads.internal.client.x");
                         Method dMethod = xClz.getMethod("d");
                         Object n = dMethod.invoke(null);
-                        Log.i(TAG, "hook ct a : after  n = " + n + " class = " + n.getClass().toString());
+                        Logger.logi("hook ct a : after  n = " + n + " class = " + n.getClass().toString());
                         Reflector nRef = Reflector.on("com.google.android.gms.ads.internal.config.n", false, classLoader);
                         Object c = nRef.field("c").get(n);
                         Object d = nRef.field("d").get(n);
@@ -96,24 +97,24 @@ public class Hook_ct extends AbstractPluginClassModule {
                         Object f = nRef.field("f").get(n);
                         Object g = nRef.field("g").get(n);
                         Object h = nRef.field("h").get(n);
-                        Log.i(TAG, "hook ct a : after  c = " + c + " class = " + c.getClass().toString());
-                        Log.i(TAG, "hook ct a : after  d = " + d + " class = " + d.getClass().toString());
-                        Log.i(TAG, "hook ct a : after  e = " + e + " class = " + e.getClass().toString());
-                        Log.i(TAG, "hook ct a : after  f = " + f + " class = " + f.getClass().toString());
-                        Log.i(TAG, "hook ct a : after  g = " + g + " class = " + g.getClass().toString());
-                        Log.i(TAG, "hook ct a : after  h = " + h + " class = " + h.getClass().toString());
-                        Log.i(TAG, "hook ct a : after  h contains gads:gestures:bs:enabled = " + h.toString().contains("gads:gestures:bs:enabled"));
+                        Logger.logi("hook ct a : after  c = " + c + " class = " + c.getClass().toString());
+                        Logger.logi("hook ct a : after  d = " + d + " class = " + d.getClass().toString());
+                        Logger.logi("hook ct a : after  e = " + e + " class = " + e.getClass().toString());
+                        Logger.logi("hook ct a : after  f = " + f + " class = " + f.getClass().toString());
+                        Logger.logi("hook ct a : after  g = " + g + " class = " + g.getClass().toString());
+                        Logger.logi("hook ct a : after  h = " + h + " class = " + h.getClass().toString());
+                        Logger.logi("hook ct a : after  h contains gads:gestures:bs:enabled = " + h.toString().contains("gads:gestures:bs:enabled"));
                         Reflector pRef = Reflector.on("com.google.android.gms.ads.internal.config.p", false, classLoader);
                         Object bw = pRef.field("bw").get();
                         Reflector cRef = Reflector.on("com.google.android.gms.ads.internal.config.c", false, classLoader);
                         Object a = cRef.field("a").get(bw);
-                        Log.i(TAG, "hook ct a : after  c.a = " + a + " class = " + a.getClass().toString());
+                        Logger.logi("hook ct a : after  c.a = " + a + " class = " + a.getClass().toString());
                         SharedPreferences sp = (SharedPreferences) e;
                         boolean contains = sp.contains("gads:gestures:bs:enabled");
                         if (contains) {
-                            Log.i(TAG, "hook ct a : after  sp contains = " + sp.getBoolean("gads:gestures:bs:enabled", false));
+                            Logger.logi("hook ct a : after  sp contains = " + sp.getBoolean("gads:gestures:bs:enabled", false));
                         } else {
-                            Log.i(TAG, "hook ct a : after  sp contains = ");
+                            Logger.logi("hook ct a : after  sp contains = ");
                         }
                         File storageDir = Environment.getExternalStorageDirectory();
                         File file = new File(storageDir, "outctafter.txt");

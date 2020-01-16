@@ -1,10 +1,11 @@
-package com.suifeng.xposedwork.hookClasses.hookclassloader;
+package com.suifeng.xposedwork.hookclasses.hookclassloader;
 
 import android.util.Log;
 
 import com.suifeng.xposedwork.hookmodule.AbstractClassLoaderModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
+import com.suifeng.xposedwork.util.Logger;
 
 import de.robv.android.xposed.XC_MethodHook;
 
@@ -22,14 +23,14 @@ public class Hook_PathClassLoader extends AbstractClassLoaderModule {
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        Log.i(TAG, "hook PathClassLoader3 :before path = " + param.args[0].toString());
+                        Logger.logi("hook PathClassLoader3 :before path = " + param.args[0].toString());
                         super.beforeHookedMethod(param);
                     }
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String path = param.args[0].toString();
-                        Log.i(TAG, "hook PathClassLoader3 :after " + " path = " + path + "\n" + param.thisObject.toString());
+                        Logger.logi("hook PathClassLoader3 :after " + " path = " + path + "\n" + param.thisObject.toString());
                         if (path.contains("dl-AdsFdrDynamite")) {
                             hookPluginClasses(param);
                         }
@@ -41,14 +42,14 @@ public class Hook_PathClassLoader extends AbstractClassLoaderModule {
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        Log.i(TAG, "hook PathClassLoader2 :before path = " + param.args[0].toString());
+                        Logger.logi("hook PathClassLoader2 :before path = " + param.args[0].toString());
                         super.beforeHookedMethod(param);
                     }
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String path = param.args[0].toString();
-                        Log.i(TAG, "hook PathClassLoader2 :after " + " path = " + path + "\n" + param.thisObject.toString());
+                        Logger.logi("hook PathClassLoader2 :after " + " path = " + path + "\n" + param.thisObject.toString());
                         if (path.contains("dl-AdsFdrDynamite")) {
                             hookPluginClasses(param);
                         }
