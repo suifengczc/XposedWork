@@ -1,7 +1,7 @@
 package com.suifeng.xposedwork.hook;
 
-import com.suifeng.xposedwork.hookclasses.hookclassloader.Hook_PathClassLoader;
-import com.suifeng.xposedwork.hookclasses.hookplugin.Hook_ct;
+import com.suifeng.xposedwork.hookclasses.hooklauncher.Hook_ActivityManagerNative;
+import com.suifeng.xposedwork.hookclasses.hooklauncher.Hook_Launcher;
 import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.hookmodule.HookList;
@@ -52,10 +52,14 @@ public class HookStack implements IXposedHookLoadPackage {
      */
     private void setHookClasses(ClassLoader classLoader) {
         //hook当前包中的类
-        hookClassList.addHookModule(new Hook_PathClassLoader(classLoader));
+        hookClassList.addHookModule(new Hook_Launcher(classLoader));
+//        hookClassList.addHookModule(new Hook_Activity(classLoader));
+//        hookClassList.addHookModule(new Hook_Instrumentation(classLoader));
+//        hookClassList.addHookModule(new Hook_Intent(classLoader));
+        hookClassList.addHookModule(new Hook_ActivityManagerNative(classLoader));
 
         //hook 动态加载的插件中的类
-        hookPluginClassList.add(Hook_ct.class);
+//        hookPluginClassList.add(Hook_ct.class);
     }
 
     /**

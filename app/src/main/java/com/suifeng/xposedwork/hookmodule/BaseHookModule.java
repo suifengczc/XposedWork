@@ -25,6 +25,9 @@ public abstract class BaseHookModule {
     protected ClassLoader classLoader;
 
 
+    /**
+     * @param classLoader 这里传入的是当前的classloader
+     */
     public BaseHookModule(ClassLoader classLoader) {
         hookDatas = new ArrayList<>();
         this.classLoader = classLoader;
