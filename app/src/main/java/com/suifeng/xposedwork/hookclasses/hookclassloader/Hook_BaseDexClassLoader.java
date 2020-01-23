@@ -6,14 +6,15 @@ import com.suifeng.xposedwork.hookmodule.AbstractClassLoaderModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import java.io.File;
 
 import de.robv.android.xposed.XC_MethodHook;
 
 public class Hook_BaseDexClassLoader extends AbstractClassLoaderModule {
-    public Hook_BaseDexClassLoader(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_BaseDexClassLoader(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override

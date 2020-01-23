@@ -1,5 +1,7 @@
 package com.suifeng.xposedwork.hookmodule;
 
+import android.app.AndroidAppHelper;
+
 import com.suifeng.xposedwork.util.Logger;
 
 import java.util.List;
@@ -25,7 +27,8 @@ public class HookHelper {
         for (Map.Entry<String, BaseHookModule> next : hookModules.entrySet()) {
             String clzName = next.getKey();
             BaseHookModule hookModule = next.getValue();
-            if (hookModule != null) {
+            String packageName = AndroidAppHelper.currentPackageName();
+            if (hookModule != null && hookModule.checkPackageName(packageName)) {
                 List<HookData> hookDatas = hookModule.getHookDatas();
                 for (HookData hookData : hookDatas) {
                     if (hookData.hookType == HookType.HOOK_NORMAL_METHOD

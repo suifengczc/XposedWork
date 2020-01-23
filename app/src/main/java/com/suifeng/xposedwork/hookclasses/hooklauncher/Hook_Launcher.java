@@ -10,19 +10,21 @@ import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Reflector;
 import com.suifeng.xposedwork.util.Utils;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 
 /**
  * Hook Launcher相关方法
+ *
  * @author suifengczc
  * @date 2020/1/4
  */
 public class Hook_Launcher extends BaseHookModule {
 
-    public Hook_Launcher(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_Launcher(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override
@@ -33,7 +35,7 @@ public class Hook_Launcher extends BaseHookModule {
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        Logger.logi( "hook Launcher onClick : before \n" + Utils.concatParams(param));
+                        Logger.logi("hook Launcher onClick : before \n" + Utils.concatParams(param));
                         super.beforeHookedMethod(param);
                     }
 
@@ -47,21 +49,21 @@ public class Hook_Launcher extends BaseHookModule {
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        Logger.logi( "hook Launcher startActivity : before \n" + Utils.concatParams(param)
+                        Logger.logi("hook Launcher startActivity : before \n" + Utils.concatParams(param)
                                 + "\n intent Extras = " + ((Intent) param.args[1]).getExtras().toString());
                         Reflector launcherRef = Reflector.on(param.thisObject.getClass());
                         Object mParent = launcherRef.field("mParent").get(param.thisObject);
                         if (mParent != null) {
-                            Logger.logi( "hook Launcher startActivity : before \n" + " mparent = " + mParent);
+                            Logger.logi("hook Launcher startActivity : before \n" + " mparent = " + mParent);
                         } else {
-                            Logger.logi( "hook Launcher startActivity : before \n" + " mparent is null ");
+                            Logger.logi("hook Launcher startActivity : before \n" + " mparent is null ");
                         }
                         super.beforeHookedMethod(param);
                     }
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Logger.logi( "hook Launcher startActivity : after \n " + Utils.concatParams(param));
+                        Logger.logi("hook Launcher startActivity : after \n " + Utils.concatParams(param));
                         super.afterHookedMethod(param);
                     }
                 }));

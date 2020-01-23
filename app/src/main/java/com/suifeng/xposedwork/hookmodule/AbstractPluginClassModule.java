@@ -1,5 +1,7 @@
 package com.suifeng.xposedwork.hookmodule;
 
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
+
 /**
  * HOOK 动态加载的插件中的类模板
  *
@@ -10,8 +12,8 @@ public abstract class AbstractPluginClassModule extends BaseHookModule {
     /**
      * @param classLoader 加载插件的classloader
      */
-    public AbstractPluginClassModule(ClassLoader classLoader) {
-        super(classLoader);
+    public AbstractPluginClassModule(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     /**

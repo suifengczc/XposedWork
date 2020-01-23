@@ -9,6 +9,7 @@ import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import de.robv.android.xposed.XC_MethodHook;
 
@@ -21,8 +22,8 @@ public class Hook_Intent extends BaseHookModule {
     /**
      * @param classLoader 这里传入的是当前的classloader
      */
-    public Hook_Intent(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_Intent(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override
@@ -35,9 +36,9 @@ public class Hook_Intent extends BaseHookModule {
                         Intent intent = (Intent) param.thisObject;
                         ClipData clipData = intent.getClipData();
                         if (clipData != null) {
-                            Logger.logi( "hook Intent migrateExtraStreamToClipData: before " + clipData.toString());
+                            Logger.logi("hook Intent migrateExtraStreamToClipData: before " + clipData.toString());
                         } else {
-                            Logger.logi( "hook Intent migrateExtraStreamToClipData: before clipdata is null ");
+                            Logger.logi("hook Intent migrateExtraStreamToClipData: before clipdata is null ");
                         }
                         super.beforeHookedMethod(param);
                     }
@@ -47,9 +48,9 @@ public class Hook_Intent extends BaseHookModule {
                         Intent intent = (Intent) param.thisObject;
                         ClipData clipData = intent.getClipData();
                         if (clipData != null) {
-                            Logger.logi( "hook Intent migrateExtraStreamToClipData: after " + clipData.toString());
+                            Logger.logi("hook Intent migrateExtraStreamToClipData: after " + clipData.toString());
                         } else {
-                            Logger.logi( "hook Intent migrateExtraStreamToClipData: after clipdata is null ");
+                            Logger.logi("hook Intent migrateExtraStreamToClipData: after clipdata is null ");
                         }
                         super.afterHookedMethod(param);
                     }

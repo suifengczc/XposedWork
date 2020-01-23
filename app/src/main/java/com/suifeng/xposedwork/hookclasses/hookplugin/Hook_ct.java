@@ -9,6 +9,7 @@ import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Reflector;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,8 +24,8 @@ public class Hook_ct extends AbstractPluginClassModule {
     /**
      * @param classLoader 加载插件的classloader
      */
-    public Hook_ct(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_ct(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override

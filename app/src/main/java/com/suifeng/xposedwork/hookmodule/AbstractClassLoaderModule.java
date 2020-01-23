@@ -1,6 +1,7 @@
 package com.suifeng.xposedwork.hookmodule;
 
 import com.suifeng.xposedwork.hook.HookStack;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +12,7 @@ import de.robv.android.xposed.XC_MethodHook;
 
 /**
  * Hook ClassLoader相关类时使用的模板
+ *
  * @author suifengczc
  */
 public abstract class AbstractClassLoaderModule extends BaseHookModule {
@@ -19,8 +21,8 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
     /**
      * @param classLoader 这里传入的是当前的classloader
      */
-    public AbstractClassLoaderModule(ClassLoader classLoader) {
-        super(classLoader);
+    public AbstractClassLoaderModule(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     /**
@@ -32,6 +34,7 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
     /**
      * 各种ClassLoader构造方法调用完成后调用
      * hook 动态加载的插件中的类
+     *
      * @param param 各种ClassLoader构造方法的MethodHookParam
      */
     protected void hookPluginClasses(XC_MethodHook.MethodHookParam param) {

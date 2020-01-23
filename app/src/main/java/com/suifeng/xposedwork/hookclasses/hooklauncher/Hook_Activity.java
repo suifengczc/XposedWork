@@ -10,6 +10,7 @@ import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Reflector;
 import com.suifeng.xposedwork.util.Utils;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import de.robv.android.xposed.XC_MethodHook;
 
@@ -21,8 +22,8 @@ import de.robv.android.xposed.XC_MethodHook;
  */
 public class Hook_Activity extends BaseHookModule {
 
-    public Hook_Activity(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_Activity(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override

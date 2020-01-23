@@ -7,13 +7,14 @@ import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Utils;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import de.robv.android.xposed.XC_MethodHook;
 
 public class Hook_agf extends AbstractPluginClassModule {
 
-    public Hook_agf(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_agf(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override

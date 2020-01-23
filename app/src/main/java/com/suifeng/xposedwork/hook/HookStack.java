@@ -52,11 +52,11 @@ public class HookStack implements IXposedHookLoadPackage {
      */
     private void setHookClasses(ClassLoader classLoader) {
         //hook当前包中的类
-        hookClassList.addHookModule(new Hook_Launcher(classLoader));
+        hookClassList.addHookModule(new Hook_Launcher(classLoader,null));
 //        hookClassList.addHookModule(new Hook_Activity(classLoader));
 //        hookClassList.addHookModule(new Hook_Instrumentation(classLoader));
 //        hookClassList.addHookModule(new Hook_Intent(classLoader));
-        hookClassList.addHookModule(new Hook_ActivityManagerNative(classLoader));
+        hookClassList.addHookModule(new Hook_ActivityManagerNative(classLoader, null));
 
         //hook 动态加载的插件中的类
 //        hookPluginClassList.add(Hook_ct.class);

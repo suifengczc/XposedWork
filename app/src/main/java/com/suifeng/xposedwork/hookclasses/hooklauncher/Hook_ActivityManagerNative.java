@@ -4,6 +4,7 @@ import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Utils;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import de.robv.android.xposed.XC_MethodHook;
 
@@ -16,8 +17,8 @@ public class Hook_ActivityManagerNative extends BaseHookModule {
     /**
      * @param classLoader 这里传入的是当前的classloader
      */
-    public Hook_ActivityManagerNative(ClassLoader classLoader) {
-        super(classLoader);
+    public Hook_ActivityManagerNative(ClassLoader classLoader, PackageNameFilter filter) {
+        super(classLoader, filter);
     }
 
     @Override
