@@ -2,13 +2,15 @@
 本项目是为方便逆向分析，基于Xposed框架实现的hook模块
 
 - 为了方便代码的实时生效实现了免重启，[参考项目](https://github.com/shuihuadx/XposedHook)
-- 为了避免在一个类中重复写太多hook代码，又频繁只是修改，导致Hook入口类冗余杂乱，所以使用了HookModule类来定义每一个需要Hook的类和具体Hook操作
+- 为了避免在一个类中重复写太多hook代码，又频繁修改，导致Hook入口类冗余杂乱，所以使用了BaseHookModule类来定义每一个需要Hook的类并包含了对具体方法或变量的Hook操作
 
     - ClassLoaderModule继承自HookModule用来 hook ClassLoader相关api，用来实现hook动态加载的插件中的类
 
-    - PluginClassModule继承自HookModule， hook 插件中的类
+    - PluginClassModule继承自HookModule，hook 插件中的类
     
-- 为方便管理需要Hook的应用，在assets下添加了hook_package.json文件，其中用json格式添加需要hook的app，可以在不重启设备的情况下动态修改需要hook的app
+- 为方便管理需要Hook的应用，在assets下添加了hook_package.json文件，其中用json格式添加需要hook的app包名，可以在不重启设备的情况下动态修改需要hook的app
+
+- 添加了包名过滤机制，在创建BaseHookModule时传入PackageNameFilter，只有当hook到指定的包时才生效。支持多包名和正则。
 
 # 主要功能类
 
