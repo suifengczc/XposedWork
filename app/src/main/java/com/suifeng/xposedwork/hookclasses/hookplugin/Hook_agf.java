@@ -1,7 +1,5 @@
 package com.suifeng.xposedwork.hookclasses.hookplugin;
 
-import android.util.Log;
-
 import com.suifeng.xposedwork.hookmodule.AbstractPluginClassModule;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
@@ -20,6 +18,7 @@ public class Hook_agf extends AbstractPluginClassModule {
     @Override
     protected void init() {
         className = "agf";
+
         hookDatas.add(new HookMethodData("a", HookType.HOOK_NORMAL_METHOD,
                 loadClass("afz"),
                 loadClass("agi"),
@@ -39,7 +38,8 @@ public class Hook_agf extends AbstractPluginClassModule {
                         Logger.logi("hook agf a : after " + Utils.concatResult(param));
                         super.afterHookedMethod(param);
                     }
-                }));
+                })
+        );
 
     }
 

@@ -17,9 +17,16 @@ import de.robv.android.xposed.XC_MethodHook;
  */
 public abstract class AbstractClassLoaderModule extends BaseHookModule {
 
+    /**
+     * @param classLoader 这里传入的是当前的classloader
+     */
+    public AbstractClassLoaderModule(ClassLoader classLoader) {
+        super(classLoader);
+    }
 
     /**
      * @param classLoader 这里传入的是当前的classloader
+     * @param filter      包名筛选，指定HookModule对特定的包生效，为空时对所有包生效
      */
     public AbstractClassLoaderModule(ClassLoader classLoader, PackageNameFilter filter) {
         super(classLoader, filter);

@@ -36,6 +36,14 @@ public abstract class BaseHookModule {
     /**
      * @param classLoader 这里传入的是当前的classloader
      */
+    public BaseHookModule(ClassLoader classLoader) {
+        this(classLoader, null);
+    }
+
+    /**
+     * @param classLoader 这里传入的是当前的classloader
+     * @param filter 包名筛选，指定HookModule对特定的包生效，为空时对所有包生效
+     */
     public BaseHookModule(ClassLoader classLoader, PackageNameFilter filter) {
         hookDatas = new ArrayList<>();
         this.classLoader = classLoader;
@@ -61,7 +69,27 @@ public abstract class BaseHookModule {
         return hookDatas;
     }
 
+    /**
+     * 判断当前hook到的包名是否符合当前HookModule的目标包名
+     * @param packageName Xposed当前hook到的包名
+     * @return true表示对当前包执行hook
+     */
     public boolean checkPackageName(String packageName) {
         return filter == null || filter.filter(packageName);
+    }
+
+    /**
+     * hook 插件中的类时可能需要用到插件中的其他类
+     *
+     * @param cls
+     * @return 需要加载的Class
+     * @throws ClassNotFoundException
+     */
+    protected Class loadClass(String cls) {
+        try {
+            return classLoader.loadClass(cls);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

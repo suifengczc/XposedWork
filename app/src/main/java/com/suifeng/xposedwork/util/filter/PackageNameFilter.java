@@ -12,13 +12,15 @@ import java.util.regex.Pattern;
  */
 public class PackageNameFilter implements Filter<String> {
 
-    private List<String> allowedPackageName;
-    private Pattern allowedPattern;
+    /**
+     * 允许的包名列表，可以存包名或符合的包名正则
+     */
+    private List<Object> allowedPackageName = new ArrayList<>();
 
     /**
      * @param allowedPackageName 允许的包名列表
      */
-    public PackageNameFilter(List<String> allowedPackageName) {
+    public PackageNameFilter(List<Object> allowedPackageName) {
         this.allowedPackageName = allowedPackageName;
     }
 
@@ -26,7 +28,6 @@ public class PackageNameFilter implements Filter<String> {
      * @param allowedPackageName 允许的包名
      */
     public PackageNameFilter(String allowedPackageName) {
-        this.allowedPackageName = new ArrayList<>();
         this.allowedPackageName.add(allowedPackageName);
     }
 
@@ -34,18 +35,37 @@ public class PackageNameFilter implements Filter<String> {
      * @param allowedPattern 允许的包名正则
      */
     public PackageNameFilter(Pattern allowedPattern) {
-        this.allowedPattern = allowedPattern;
+        this.allowedPackageName.add(allowedPattern);
+    }
+
+    /**
+     * 添加筛选条件
+     *
+     * @param condition 添加的条件
+     * @return
+     */
+    public PackageNameFilter add(Object condition) {
+        if (condition instanceof String || condition instanceof Pattern) {
+            this.allowedPackageName.add(condition);
+            return this;
+        }
+        throw new RuntimeException("condition not allowed");
     }
 
     @Override
     public boolean filter(String checkPackageName) {
-        if (allowedPackageName == null && allowedPattern == null) {
-            //无筛选条件，默认通过
-            return true;
-        } else if (allowedPackageName != null && !allowedPackageName.isEmpty()) {
-            return allowedPackageName.contains(checkPackageName);
-        } else if (allowedPattern != null) {
-            return allowedPattern.matcher(checkPackageName).find();
+        if (allowedPackageName != null && !allowedPackageName.isEmpty()) {
+            for (Object obj : allowedPackageName) {
+                if (obj instanceof String) {
+                    if (((String) obj).equals(checkPackageName)) {
+                        return true;
+                    }
+                } else if (obj instanceof Pattern) {
+                    if (((Pattern) obj).matcher(checkPackageName).find()) {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }

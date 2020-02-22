@@ -24,6 +24,7 @@ Hook逻辑的唯一入口，在HookStack的`setHookClasses()`方法中设置了�
 ## BaseHookModule
 Hook逻辑的抽象类，里面包含了`className`(被Hook的类全限定类名)，`hookDatas`(Hook数据类)，`classLoader`(构造函数传入的加载Hook类的ClassLoader)。
 一个HookModule可以包含多个HookData，表示对当前类的多个方法或参数Hook。
+可以传入PackageNameFilter指定当前HookModule在哪个包下生效
 
 ## HookData
 一个HookData代表一个具体Hook逻辑的数据类，包含了例如被hook的方法名或参数名，HookType。

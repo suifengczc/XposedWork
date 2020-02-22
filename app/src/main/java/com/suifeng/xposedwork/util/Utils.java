@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -22,6 +23,12 @@ import de.robv.android.xposed.XC_MethodHook;
 
 public class Utils {
 
+    /**
+     * 拼接堆栈信息
+     *
+     * @param stackTrace 堆栈数组
+     * @return 堆栈数组拼接字符串
+     */
     public static String concatStackTrace(StackTraceElement[] stackTrace) {
         StringBuilder sb = new StringBuilder();
         for (StackTraceElement element : stackTrace) {
@@ -30,6 +37,22 @@ public class Utils {
         return sb.toString();
     }
 
+
+    /**
+     * 获取当前线程调用堆栈
+     *
+     * @return 当前堆栈字符串
+     */
+    public static String getStackTrace() {
+        return concatStackTrace(Thread.currentThread().getStackTrace());
+    }
+
+    /**
+     * 拼接被hook方法的执行结果
+     *
+     * @param params afterHookedMethod回调方法中传过来的param
+     * @return 结果拼接字符串
+     */
     public static String concatResult(XC_MethodHook.MethodHookParam params) {
         StringBuilder sb = new StringBuilder();
         sb.append("result = ");
@@ -52,6 +75,12 @@ public class Utils {
         return sb.append("\n").toString();
     }
 
+    /**
+     * 拼接被hook方法中传入的所有参数
+     *
+     * @param params beforeHookedMethod或afterHookedMethod回调方法中传过来的param
+     * @return 参数拼接字符串
+     */
     public static String concatParams(XC_MethodHook.MethodHookParam params) {
         StringBuilder sb = new StringBuilder();
         Object[] args = params.args;
@@ -71,15 +100,160 @@ public class Utils {
         return sb.toString();
     }
 
+    /**
+     * 拼接double数组
+     *
+     * @param doubleArr
+     * @return
+     */
+    public static String concatArrays(double[] doubleArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (double i : doubleArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接float数组
+     *
+     * @param floatArr
+     * @return
+     */
+    public static String concatArrays(float[] floatArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (float i : floatArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接short数组
+     *
+     * @param shortArr
+     * @return
+     */
+    public static String concatArrays(short[] shortArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (short i : shortArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接boolean数组
+     *
+     * @param boolArr
+     * @return
+     */
+    public static String concatArrays(boolean[] boolArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (boolean i : boolArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接char数组
+     *
+     * @param charArr
+     * @return
+     */
+    public static String concatArrays(char[] charArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (char i : charArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接long数组
+     *
+     * @param longArr
+     * @return
+     */
+    public static String concatArrays(long[] longArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (long i : longArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接int数组
+     *
+     * @param intArr
+     * @return
+     */
+    public static String concatArrays(int[] intArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i : intArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接byte数组
+     *
+     * @param byteArr
+     * @return
+     */
+    public static String concatArrays(byte[] byteArr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i : byteArr) {
+            sb.append(i);
+            sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
+    }
+
+    /**
+     * 拼接Object数组
+     *
+     * @param objArr
+     * @return
+     */
     public static String concatArrays(Object[] objArr) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < objArr.length; i++) {
-            sb.append(objArr[i]);
-            if (i < objArr.length - 1) {
-                sb.append(", ");
+        sb.append("[");
+        for (Object obj : objArr) {
+            if (obj != null) {
+                sb.append(obj);
+            } else {
+                sb.append("[NULL]");
             }
         }
-        return sb.append("\n").toString();
+        sb.append("]");
+        return sb.toString().replace(", ]", "]");
     }
 
     /**
@@ -221,5 +395,33 @@ public class Utils {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * 拼接Object的类型和toString
+     *
+     * @param object
+     * @return
+     */
+    public static String getObjectInfo(Object object) {
+        if (object == null) {
+            return "object is null!!";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append(object.getClass().toString());
+            sb.append(" --> ");
+            sb.append(object);
+            return sb.toString();
+        }
+    }
+
+    /**
+     * 获取object的
+     *
+     * @param obj
+     * @return
+     */
+    public static String getObjectHashCode(Object obj) {
+        return (obj.getClass().getName() + "@" + Integer.toHexString(obj.hashCode()));
     }
 }

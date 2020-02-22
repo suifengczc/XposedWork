@@ -10,11 +10,20 @@ import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 public abstract class AbstractPluginClassModule extends BaseHookModule {
 
     /**
-     * @param classLoader 加载插件的classloader
+     * @param classLoader 这里传入的是当前的classloader
+     */
+    public AbstractPluginClassModule(ClassLoader classLoader) {
+        super(classLoader);
+    }
+
+    /**
+     * @param classLoader 这里传入的是当前的classloader
+     * @param filter      包名筛选，指定HookModule对特定的包生效，为空时对所有包生效
      */
     public AbstractPluginClassModule(ClassLoader classLoader, PackageNameFilter filter) {
         super(classLoader, filter);
     }
+
 
     /**
      * 在init方法中设置className和hookDatas的值
@@ -22,18 +31,4 @@ public abstract class AbstractPluginClassModule extends BaseHookModule {
     @Override
     protected abstract void init();
 
-    /**
-     * hook 插件中的类时可能需要用到插件中的其他类
-     *
-     * @param cls
-     * @return 需要加载的Class
-     * @throws ClassNotFoundException
-     */
-    protected Class loadClass(String cls) {
-        try {
-            return classLoader.loadClass(cls);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
