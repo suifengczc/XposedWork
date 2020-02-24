@@ -3,6 +3,8 @@ package com.suifeng.xposedwork.util;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.suifeng.xposedwork.hook.XposedMain;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -280,24 +282,43 @@ public class Utils {
         return packageList;
     }
 
+    public static String getLibPath(String libName) {
+        String modulePath = getModulePath();
+        if (!TextUtils.isEmpty(modulePath)) {
+            return modulePath + File.separator + "lib" + File.separator + "arm" + File.separator + "lib" + libName + ".so";
+        }
+        return libName;
+    }
+
+    /**
+     * 获取当前模块的实际apk路径
+     * 例如/data/app/com.suifeng.xposedwork-1/base.apk
+     *
+     * @return apk包路径
+     */
+    public static String getModuleApkPath() {
+        String module = getModulePath();
+        return TextUtils.isEmpty(module) ? module : module + File.separator + "base.apk";
+    }
+
     /**
      * 获取当前模块的实际包名路径
-     * 例如/data/app/com.xxx.xxxx-1/base.apk
+     * 例如/data/app/com.suifeng.xposedwork-1
      *
-     * @return 包名路径
+     * @return 模块路径
      */
     public static String getModulePath() {
         String dataPath = Environment.getDataDirectory().getAbsolutePath();
         String appPath = dataPath + File.separator + "app";
-        String packagePath = "";
+        String modulePath = "";
         for (int i = 1; i < 3; i++) {
-            File f = new File(appPath + File.separator + "com.suifeng.xposedwork-" + i);
+            File f = new File(appPath + File.separator + XposedMain.MODULE_PACKAGE_NAME + "-" + i);
             if (f.exists()) {
-                packagePath = f.getAbsolutePath();
+                modulePath = f.getAbsolutePath();
                 break;
             }
         }
-        return TextUtils.isEmpty(packagePath) ? packagePath : packagePath + File.separator + "base.apk";
+        return modulePath;
     }
 
     /**
@@ -347,8 +368,7 @@ public class Utils {
      */
     private static String getStringFromAssets(String filePath) {
         String str = "";
-        //因为刚开始的时候还没有context，所以直接读取模块在/data/app下的base.apk，从压缩包中读取文件
-        String packagePath = getModulePath();
+        String packagePath = getModuleApkPath();
         InputStream inputStream = getInputStreamFromAssets(packagePath, filePath);
         if (inputStream != null) {
             try {

@@ -25,7 +25,7 @@ public class XposedMain implements IXposedHookLoadPackage, IXposedHookZygoteInit
     /**
      * 当前Xposed模块的包名,方便寻找apk文件
      */
-    private final static String MODULE_PACKAGE_NAME = "com.suifeng.xposedwork";
+    public final static String MODULE_PACKAGE_NAME = "com.suifeng.xposedwork";
     /**
      * 实际hook逻辑处理类
      */
