@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -389,11 +388,11 @@ public class Utils {
     /**
      * 打印object中所有field的值
      *
-     * @param clz    object的class
-     * @param object 实例
+     * @param object object
      * @return object所有属性值组合后的String
      */
-    public static String printObject(Class<?> clz, Object object) {
+    public static String getObjectFields(Object object) {
+        Class<?> clz = object.getClass();
         StringBuilder sb = new StringBuilder();
         Field[] declaredFields = clz.getDeclaredFields();
         for (Field field : declaredFields) {
@@ -428,7 +427,7 @@ public class Utils {
             return "object is null!!";
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append(object.getClass().toString());
+            sb.append(getObjectHashCode(object));
             sb.append(" --> ");
             sb.append(object);
             return sb.toString();
@@ -436,7 +435,7 @@ public class Utils {
     }
 
     /**
-     * 获取object的
+     * 拼接object的类名和hashcode
      *
      * @param obj
      * @return
