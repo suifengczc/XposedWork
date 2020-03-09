@@ -17,7 +17,7 @@ import java.lang.reflect.Modifier;
  * https://github.com/didi/VirtualAPK/blob/master/CoreLibrary/src/main/java/com/didi/virtualapk/utils/Reflector.java
  * Created by qiaopu on 2018/4/26.
  */
-public class Reflector {
+public class Reflector implements Cloneable{
 
     protected Class<?> mType;
     protected Object mCaller;
@@ -446,5 +446,12 @@ public class Reflector {
             }
             return null;
         }
+    }
+
+    @NonNull
+    @Override
+    public Reflector clone() throws CloneNotSupportedException {
+        Reflector ref = (Reflector) super.clone();
+        return ref;
     }
 }
