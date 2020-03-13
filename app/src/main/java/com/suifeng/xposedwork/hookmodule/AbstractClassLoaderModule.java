@@ -1,6 +1,7 @@
 package com.suifeng.xposedwork.hookmodule;
 
-import com.suifeng.xposedwork.hook.HookStack;
+import com.suifeng.xposedwork.hookentry.InnerHookEntry;
+import com.suifeng.xposedwork.util.Utils;
 import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import java.lang.reflect.Constructor;
@@ -63,7 +64,7 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
      * @return HookList
      */
     private HookList getPluginHookList(ClassLoader loader) {
-        List<Class> hookPluginClassList = HookStack.getHookPluginClassList();
+        List<Class> hookPluginClassList = InnerHookEntry.getHookPluginClassList();
         HookList hookList = new HookList();
         for (Class aClass : hookPluginClassList) {
             try {
@@ -72,7 +73,7 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
                 BaseHookModule hookModule = (BaseHookModule) constructor.newInstance(loader);
                 hookList.addHookModule(hookModule);
             } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
-                e.printStackTrace();
+                Utils.printThrowable(e);
             }
         }
         return hookList;

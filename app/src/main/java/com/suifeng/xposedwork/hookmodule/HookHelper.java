@@ -3,6 +3,7 @@ package com.suifeng.xposedwork.hookmodule;
 import android.app.AndroidAppHelper;
 
 import com.suifeng.xposedwork.util.Logger;
+import com.suifeng.xposedwork.util.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class HookHelper {
                             Logger.loge("dealHook: when hookNormalClass cant found class " + clzName);
                             return;
                         } catch (IllegalAccessException e) {
-                            e.printStackTrace();
+                            Utils.printThrowable(e);
                             return;
                         }
                         HookFieldData hookFieldData = (HookFieldData) hookData;
@@ -82,7 +83,7 @@ public class HookHelper {
                         try {
                             XposedHelpers.findField(classLoader.loadClass(clzName), fieldData.hookTarget).set(null, fieldData.valueForSet);
                         } catch (IllegalAccessException | ClassNotFoundException e) {
-                            e.printStackTrace();
+                            Utils.printThrowable(e);
                             return;
                         }
                         if (fieldData.callback != null) {

@@ -16,8 +16,7 @@ public class NativeUtils {
         try {
             System.load(Utils.getLibPath("nativesupport"));
         } catch (Exception e) {
-            e.printStackTrace();
-            Logger.loge(e.getMessage());
+            Utils.printThrowable(e);
         }
     }
 

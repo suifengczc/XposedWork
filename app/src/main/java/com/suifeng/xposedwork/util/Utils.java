@@ -1,9 +1,10 @@
 package com.suifeng.xposedwork.util;
 
-import android.os.Environment;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
-import com.suifeng.xposedwork.hook.XposedMain;
+import com.suifeng.xposedwork.hookentry.OuterHookEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -262,7 +266,7 @@ public class Utils {
      *
      * @return 包名list
      */
-    public static List<String> getHookPackage() {
+    public static List<String> getHookPackageList() {
         String config = getStringFromAssets("hook_package.json");
         List<String> packageList = new ArrayList<>();
         if (!TextUtils.isEmpty(config)) {
@@ -270,7 +274,7 @@ public class Utils {
             try {
                 jsonObject = new JSONObject(config);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Utils.printThrowable(e);
             }
             JSONArray hookPackage = jsonObject.optJSONArray("hook_package");
             for (int i = 0; i < hookPackage.length(); i++) {
@@ -289,15 +293,33 @@ public class Utils {
         return libName;
     }
 
+    public static String moduleApkPath = "";
+
     /**
-     * 获取当前模块的实际apk路径
+     * 适配API level 20-29
+     * 使用反射构造ContextImpl，调用getPackageCodePath方法获取本包路径
      * 例如/data/app/com.suifeng.xposedwork-1/base.apk
+     * 或者/data/app/com.suifeng.xposedwork-8hwtoqh8oantk8aq==/base.apk
      *
      * @return apk包路径
      */
     public static String getModuleApkPath() {
-        String module = getModulePath();
-        return TextUtils.isEmpty(module) ? module : module + File.separator + "base.apk";
+        if (!TextUtils.isEmpty(moduleApkPath)) {
+            return moduleApkPath;
+        }
+        String sourceDir = "";
+        try {
+            Class<?> contextImplClz = Class.forName("android.app.ContextImpl");
+            Object ctxtImpl = ContextImplUtil.getContextImpl();
+            Method createPackageContextMethod = contextImplClz.getDeclaredMethod("createPackageContext", String.class, int.class);
+            createPackageContextMethod.setAccessible(true);
+            Context context = (Context) createPackageContextMethod.invoke(ctxtImpl, OuterHookEntry.MODULE_PACKAGE_NAME, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+            sourceDir = context.getPackageCodePath();
+        } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            Utils.printThrowable(e);
+        }
+        moduleApkPath = sourceDir;
+        return sourceDir;
     }
 
     /**
@@ -307,17 +329,8 @@ public class Utils {
      * @return 模块路径
      */
     public static String getModulePath() {
-        String dataPath = Environment.getDataDirectory().getAbsolutePath();
-        String appPath = dataPath + File.separator + "app";
-        String modulePath = "";
-        for (int i = 1; i < 3; i++) {
-            File f = new File(appPath + File.separator + XposedMain.MODULE_PACKAGE_NAME + "-" + i);
-            if (f.exists()) {
-                modulePath = f.getAbsolutePath();
-                break;
-            }
-        }
-        return modulePath;
+        String moduleApkPath = getModuleApkPath();
+        return moduleApkPath.substring(0, moduleApkPath.lastIndexOf("/"));
     }
 
     /**
@@ -334,7 +347,7 @@ public class Utils {
                 ZipEntry fileEntry = apkFile.getEntry("assets/" + filePath);
                 return apkFile.getInputStream(fileEntry);
             } catch (IOException e) {
-                e.printStackTrace();
+                Utils.printThrowable(e);
             }
         }
         return null;
@@ -354,13 +367,13 @@ public class Utils {
             buf = new byte[inputStream.available()];
             inputStream.read(buf);
         } catch (IOException e) {
-            e.printStackTrace();
+            Utils.printThrowable(e);
         }
         return buf;
     }
 
     /**
-     * 从模块的assets下获取hook_package.json文件中的配置
+     * 从模块的assets下获取指定路径下文件内容
      *
      * @param filePath 要读取的assets下的文件路径，路径中不包括assets
      * @return string
@@ -379,7 +392,7 @@ public class Utils {
                 }
                 str = sb.toString();
             } catch (IOException e) {
-                e.printStackTrace();
+                Utils.printThrowable(e);
             }
         }
         return str;
@@ -409,7 +422,7 @@ public class Utils {
                     sb.append(obj.getClass().toString());
                 }
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Utils.printThrowable(e);
             }
             sb.append("\n");
         }
@@ -442,5 +455,37 @@ public class Utils {
      */
     public static String getObjectHashCode(Object obj) {
         return (obj.getClass().getName() + "@" + Integer.toHexString(obj.hashCode()));
+    }
+
+    /**
+     * 用Logger打印错误信息方便在Android studio的logcat中查看
+     *
+     * @param throwable
+     */
+    public static void printThrowable(Throwable throwable) {
+        StringBuilder sb = formatThrowable(throwable);
+        Logger.loge(sb.toString());
+    }
+
+    /**
+     * 格式化Throwable的输出格式
+     *
+     * @param throwable
+     * @return StringBuilder
+     */
+    private static StringBuilder formatThrowable(Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(throwable.toString());
+        sb.append("\n");
+        sb.append(concatStackTrace(throwable.getStackTrace()));
+        Throwable[] suppressed = throwable.getSuppressed();
+        for (Throwable tw : suppressed) {
+            sb.append(formatThrowable(tw));
+        }
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
+            sb.append(formatThrowable(cause));
+        }
+        return sb;
     }
 }

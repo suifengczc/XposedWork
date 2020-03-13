@@ -1,6 +1,7 @@
-package com.suifeng.xposedwork.hook;
+package com.suifeng.xposedwork.hookentry;
 
-import com.suifeng.xposedwork.hookclasses.hooksystem.Hook_String;
+import com.suifeng.xposedwork.hookclasses.hookclassloader.Hook_PathClassLoader;
+import com.suifeng.xposedwork.hookclasses.hookplugin.Hook_agf;
 import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.hookmodule.HookList;
@@ -14,7 +15,11 @@ import java.util.Map;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class HookStack implements IXposedHookLoadPackage {
+/**
+ * Xposed 内部hook入口，实际处理hook的位置
+ * @author suifengczc
+ */
+public class InnerHookEntry implements IXposedHookLoadPackage {
 
     /**
      * 需要hook的包名list
@@ -29,11 +34,11 @@ public class HookStack implements IXposedHookLoadPackage {
      */
     private static List<Class> hookPluginClassList;
 
-    public HookStack() {
+    public InnerHookEntry() {
         //因为是动态加载的xposed模块，所以在内部入口加载lib，如果在HookMain中加载lib会导致找不到对应native方法
         NativeUtils.loadLibrary();
         //从hook_package.json中获取需要hook的包名
-        hookPackageName = Utils.getHookPackage();
+        hookPackageName = Utils.getHookPackageList();
 
         //plugin hook
         hookPluginClassList = new ArrayList<>();
@@ -54,7 +59,8 @@ public class HookStack implements IXposedHookLoadPackage {
      */
     private void setHookClasses(ClassLoader classLoader) {
         //hook当前包中的类
-        hookClassList.addHookModule(new Hook_String(classLoader));
+        hookClassList.addHookModule(new Hook_PathClassLoader(classLoader));
+//        hookClassList.addHookModule(new Hook_String(classLoader));
 //        hookClassList.addHookModule(new Hook_Launcher(classLoader,null));
 //        hookClassList.addHookModule(new Hook_Activity(classLoader));
 //        hookClassList.addHookModule(new Hook_Instrumentation(classLoader));
@@ -62,7 +68,7 @@ public class HookStack implements IXposedHookLoadPackage {
 //        hookClassList.addHookModule(new Hook_ActivityManagerNative(classLoader, null));
 
         //hook 动态加载的插件中的类
-//        hookPluginClassList.add(Hook_ct.class);
+//        hookPluginClassList.add(Hook_agf.class);
     }
 
     /**
@@ -79,7 +85,6 @@ public class HookStack implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
-
         if (!hookPackageName.contains(lpparam.packageName)) {
             return;
         }

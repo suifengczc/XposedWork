@@ -12,6 +12,10 @@ import de.robv.android.xposed.XC_MethodHook;
 
 public class Hook_PathClassLoader extends AbstractClassLoaderModule {
 
+    public Hook_PathClassLoader(ClassLoader classLoader) {
+        super(classLoader);
+    }
+
     public Hook_PathClassLoader(ClassLoader classLoader, PackageNameFilter filter) {
         super(classLoader, filter);
     }
