@@ -9,27 +9,26 @@ import de.robv.android.xposed.XC_MethodHook;
 
 /**
  * @author suifengczc
- * @date 2020/2/23
+ * @date 2020/3/13
  */
-public class Hook_String extends BaseHookModule {
+public class Hook_StringBuilder extends BaseHookModule {
 
-    public Hook_String(ClassLoader classLoader) {
+    public Hook_StringBuilder(ClassLoader classLoader) {
         super(classLoader);
     }
 
     @Override
     protected void init() {
-        className = String.class.getName();
-
-        //String.concat(String)
-        hookDatas.add(HookHelper.hookMethod("concat",
+        className = StringBuilder.class.getName();
+        hookDatas.add(HookHelper.hookMethod(
+                "append",
                 String.class,
                 new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         String thisStr = param.thisObject.toString();
                         String concatStr = (String) param.args[0];
-                        Logger.logi(NativeUtils.concatString("hook String.concat(String):", thisStr, " --> ", concatStr));
+                        Logger.logi(NativeUtils.concatString("hook StringBuilder.append(String):", thisStr, " --> ", concatStr));
                         super.beforeHookedMethod(param);
                     }
 
@@ -37,7 +36,7 @@ public class Hook_String extends BaseHookModule {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
                     }
-                })
-        );
+                }
+        ));
     }
 }

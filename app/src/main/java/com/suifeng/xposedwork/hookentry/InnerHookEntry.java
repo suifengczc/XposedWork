@@ -2,6 +2,9 @@ package com.suifeng.xposedwork.hookentry;
 
 import com.suifeng.xposedwork.hookclasses.hookclassloader.Hook_PathClassLoader;
 import com.suifeng.xposedwork.hookclasses.hookplugin.Hook_agf;
+import com.suifeng.xposedwork.hookclasses.hooksystem.Hook_String;
+import com.suifeng.xposedwork.hookclasses.hooksystem.Hook_StringBuffer;
+import com.suifeng.xposedwork.hookclasses.hooksystem.Hook_StringBuilder;
 import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.hookmodule.HookList;
@@ -17,6 +20,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 /**
  * Xposed 内部hook入口，实际处理hook的位置
+ *
  * @author suifengczc
  */
 public class InnerHookEntry implements IXposedHookLoadPackage {
@@ -59,8 +63,10 @@ public class InnerHookEntry implements IXposedHookLoadPackage {
      */
     private void setHookClasses(ClassLoader classLoader) {
         //hook当前包中的类
-        hookClassList.addHookModule(new Hook_PathClassLoader(classLoader));
-//        hookClassList.addHookModule(new Hook_String(classLoader));
+//        hookClassList.addHookModule(new Hook_PathClassLoader(classLoader));
+        hookClassList.addHookModule(new Hook_String(classLoader));
+//        hookClassList.addHookModule(new Hook_StringBuffer(classLoader));
+//        hookClassList.addHookModule(new Hook_StringBuilder(classLoader));
 //        hookClassList.addHookModule(new Hook_Launcher(classLoader,null));
 //        hookClassList.addHookModule(new Hook_Activity(classLoader));
 //        hookClassList.addHookModule(new Hook_Instrumentation(classLoader));

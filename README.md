@@ -103,6 +103,10 @@ public class HookTest extends BaseHookModule {
 
 4. 在修改了xposed模块代码后需要重启被hook的apk才能使新代码生效，但不需要重启设备
 
+# 已知Bug
+偶现同时hook String,StringBuffer,StringBuilder拼接方法，且当中有较多几百k大小的字符串时因为在jni层字符串拼接时内存来不及释放会导致crash。
+可以在Java层先对长度做预处理。
+
 # 缺点
 - 在HookData中需要手写`className = "com.suifeng.test";`不方便
 - 在HookData中需要用`hookDatas.add(HookHelper.hookMethod(xxxxxx))`方式添加需要hook的逻辑，应该有更好的实现方式

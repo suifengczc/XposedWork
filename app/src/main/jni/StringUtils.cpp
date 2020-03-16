@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <string.h>
 #include <android/log.h>
+#include <malloc.h>
 
 #define TAG "HookDemo"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG ,__VA_ARGS__) // 定义LOGI类型
@@ -13,13 +14,31 @@ extern "C"
 JNIEXPORT jstring JNICALL
 concatString(JNIEnv *env, jclass clz, jobjectArray strArray) {
     jsize strArrLength = env->GetArrayLength(strArray);
-    auto first = (jstring) env->GetObjectArrayElement(strArray, 0);
-    char *result = const_cast<char *>(env->GetStringUTFChars(first, JNI_FALSE));
-    for (int i = 1; i < strArrLength; i++) {
-        const char *ss = env->GetStringUTFChars((jstring) env->GetObjectArrayElement(strArray, i), JNI_FALSE);
-        strcat(result, ss);
+    size_t size = 0;
+    const char *s;
+    for (int i = 0; i < strArrLength; i++) {
+        s = env->GetStringUTFChars((jstring) env->GetObjectArrayElement(strArray, i), JNI_FALSE);
+        size = size + strlen(s);
     }
-    return env->NewStringUTF(result);;
+    size++;
+    char *result = (char *) malloc(size);
+
+    for (int i = 0; i < strArrLength; i++) {
+        jstring s = (jstring) env->GetObjectArrayElement(strArray, i);
+        const char *c = env->GetStringUTFChars(s, JNI_FALSE);
+        if (i == 0) {
+            strcpy(result, c);
+        } else {
+            strcat(result, c);
+        }
+        //一定要及时释放内存
+        env->DeleteLocalRef(s);
+        env->DeleteLocalRef((jobject) c);
+    }
+
+    jstring js = env->NewStringUTF(result);
+    env->ReleaseStringUTFChars(js, result);
+    return js;
 }
 
 extern "C"
@@ -66,7 +85,8 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
         return result;
     }
 
-    jniRegisterNativeMethods(env, className, registerMethods, sizeof(registerMethods) / sizeof(JNINativeMethod));
+    jniRegisterNativeMethods(env, className, registerMethods,
+                             sizeof(registerMethods) / sizeof(JNINativeMethod));
 
     return JNI_VERSION_1_4;
 }
