@@ -48,7 +48,7 @@ Java_com_test_a_NativeTest_getString(JNIEnv *env, jclass clazz) {
 }
 
 
-static const char *className = "com.suifeng.xposedwork.util.NativeUtils";
+static const char *className = "com/suifeng/xposedwork/util/NativeUtils";
 
 static JNINativeMethod registerMethods[] = {
         {"concatString", "([Ljava/lang/String;)Ljava/lang/String;", (jstring *) concatString},
