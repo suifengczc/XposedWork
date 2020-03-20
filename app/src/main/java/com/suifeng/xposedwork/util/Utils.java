@@ -74,7 +74,7 @@ public class Utils {
                     sb.append(result.getClass().toString()).append(" --> ").append(result.toString());
                 }
             } else {
-                sb.append("result is null ");
+                sb.append("[this object is null]");
             }
         }
         return sb.append("\n").toString();
@@ -95,10 +95,10 @@ public class Utils {
                 if (arg != null) {
                     sb.append(arg.getClass().toString());
                     sb.append(" --> ");
-                    sb.append(arg.toString());
+                    sb.append(getObjectString(arg));
                     sb.append("\n");
                 } else {
-                    sb.append("this arg is null \n");
+                    sb.append("[this object is null]\n");
                 }
             }
         }
@@ -254,7 +254,7 @@ public class Utils {
             if (obj != null) {
                 sb.append(obj);
             } else {
-                sb.append("[NULL]");
+                sb.append("[this object is null]");
             }
         }
         sb.append("]");
@@ -408,18 +408,19 @@ public class Utils {
         Class<?> clz = object.getClass();
         StringBuilder sb = new StringBuilder();
         Field[] declaredFields = clz.getDeclaredFields();
-        for (Field field : declaredFields) {
+        Field[] fields = clz.getFields();
+        Object[] allFields = arrayJoin(declaredFields, fields);
+        for (Object o : allFields) {
+            Field field = (Field) o;
             field.setAccessible(true);
             sb.append(field.getName());
             sb.append(" = ");
             try {
                 Object obj = field.get(object);
                 if (obj == null) {
-                    sb.append("null");
+                    sb.append("[this object is null]");
                 } else {
-                    sb.append(obj);
-                    sb.append(" --> ");
-                    sb.append(obj.getClass().toString());
+                    sb.append(getObjectString(obj));
                 }
             } catch (IllegalAccessException e) {
                 Utils.printThrowable(e);
@@ -427,6 +428,13 @@ public class Utils {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    public static Object[] arrayJoin(Object[] array1, Object[] array2) {
+        Object[] join = new Object[array1.length + array2.length];
+        System.arraycopy(array1, 0, join, 0, array1.length);
+        System.arraycopy(array2, 0, join, array1.length, array2.length);
+        return join;
     }
 
     /**
@@ -437,14 +445,46 @@ public class Utils {
      */
     public static String getObjectInfo(Object object) {
         if (object == null) {
-            return "object is null!!";
+            return "[this object is null]";
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append(getObjectHashCode(object));
             sb.append(" --> ");
-            sb.append(object);
+            sb.append(getObjectString(object));
             return sb.toString();
         }
+    }
+
+    /**
+     * 打印object的toString()信息，如果是一维数组则拼接数组。
+     *
+     * @param obj
+     * @return
+     */
+    public static String getObjectString(Object obj) {
+        StringBuilder sb = new StringBuilder();
+        if (obj instanceof byte[]) {
+            sb.append(concatArrays((byte[]) obj));
+        } else if (obj instanceof char[]) {
+            sb.append(concatArrays((char[]) obj));
+        } else if (obj instanceof double[]) {
+            sb.append(concatArrays((double[]) obj));
+        } else if (obj instanceof float[]) {
+            sb.append(concatArrays((float[]) obj));
+        } else if (obj instanceof int[]) {
+            sb.append(concatArrays((int[]) obj));
+        } else if (obj instanceof long[]) {
+            sb.append(concatArrays((long[]) obj));
+        } else if (obj instanceof short[]) {
+            sb.append(concatArrays((short[]) obj));
+        } else if (obj instanceof boolean[]) {
+            sb.append(concatArrays((boolean[]) obj));
+        } else if (obj instanceof Object[]) {
+            sb.append(concatArrays((Object[]) obj));
+        } else {
+            sb.append(obj.toString());
+        }
+        return sb.toString();
     }
 
     /**

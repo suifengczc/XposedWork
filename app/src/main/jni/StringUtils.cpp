@@ -15,10 +15,11 @@ JNIEXPORT jstring JNICALL
 concatString(JNIEnv *env, jclass clz, jobjectArray strArray) {
     jsize strArrLength = env->GetArrayLength(strArray);
     size_t size = 0;
-    const char *s;
     for (int i = 0; i < strArrLength; i++) {
-        s = env->GetStringUTFChars((jstring) env->GetObjectArrayElement(strArray, i), JNI_FALSE);
-        size = size + strlen(s);
+        jstring s = (jstring) env->GetObjectArrayElement(strArray, i);
+        const char *c = env->GetStringUTFChars(s, JNI_FALSE);
+        size = size + strlen(c);
+        env->ReleaseStringUTFChars(s, c);
     }
     size++;
     char *result = (char *) malloc(size);
@@ -31,9 +32,7 @@ concatString(JNIEnv *env, jclass clz, jobjectArray strArray) {
         } else {
             strcat(result, c);
         }
-        //一定要及时释放内存
-        env->DeleteLocalRef(s);
-        env->DeleteLocalRef((jobject) c);
+        env->ReleaseStringUTFChars(s, c);
     }
 
     jstring js = env->NewStringUTF(result);
