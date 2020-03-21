@@ -1,10 +1,10 @@
 package com.suifeng.xposedwork.util;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import com.suifeng.xposedwork.hookentry.OuterHookEntry;
+import com.suifeng.xposedwork.util.exception.ModuleApkPathException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,7 +25,18 @@ import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.XC_MethodHook;
 
+/**
+ * 公共方法类
+ *
+ * @author suifengczc
+ */
 public class Utils {
+
+    private static final String OBJECT_NULL = "[this object is null]";
+    private static final String OBJECT_CONCAT = " --> ";
+
+    private Utils() {
+    }
 
     /**
      * 拼接堆栈信息
@@ -71,10 +81,10 @@ public class Utils {
                     Object[] objArr = (Object[]) result;
                     sb.append(concatArrays(objArr));
                 } else {
-                    sb.append(result.getClass().toString()).append(" --> ").append(result.toString());
+                    sb.append(result.getClass().toString()).append(OBJECT_CONCAT).append(result.toString());
                 }
             } else {
-                sb.append("[this object is null]");
+                sb.append(OBJECT_NULL);
             }
         }
         return sb.append("\n").toString();
@@ -94,7 +104,7 @@ public class Utils {
                 Object arg = args[i];
                 if (arg != null) {
                     sb.append(arg.getClass().toString());
-                    sb.append(" --> ");
+                    sb.append(OBJECT_CONCAT);
                     sb.append(getObjectString(arg));
                     sb.append("\n");
                 } else {
@@ -254,7 +264,7 @@ public class Utils {
             if (obj != null) {
                 sb.append(obj);
             } else {
-                sb.append("[this object is null]");
+                sb.append(OBJECT_NULL);
             }
         }
         sb.append("]");
@@ -266,26 +276,27 @@ public class Utils {
      *
      * @return 包名list
      */
-    public static List<String> getHookPackageList() {
-        String config = getStringFromAssets("hook_package.json");
+    public static List<String> getHookPackageList() throws ModuleApkPathException {
+        String config = getStringFromAssets();
         List<String> packageList = new ArrayList<>();
         if (!TextUtils.isEmpty(config)) {
-            JSONObject jsonObject = null;
+            JSONObject jsonObject;
+            JSONArray hookPackage;
             try {
                 jsonObject = new JSONObject(config);
+                hookPackage = jsonObject.optJSONArray("hook_package");
+                for (int i = 0; i < hookPackage.length(); i++) {
+                    String s = hookPackage.optString(i);
+                    packageList.add(s);
+                }
             } catch (JSONException e) {
                 Utils.printThrowable(e);
-            }
-            JSONArray hookPackage = jsonObject.optJSONArray("hook_package");
-            for (int i = 0; i < hookPackage.length(); i++) {
-                String s = hookPackage.optString(i);
-                packageList.add(s);
             }
         }
         return packageList;
     }
 
-    public static String getLibPath(String libName) {
+    public static String getLibPath(String libName) throws ModuleApkPathException {
         String modulePath = getModulePath();
         if (!TextUtils.isEmpty(modulePath)) {
             return modulePath + File.separator + "lib" + File.separator + "arm" + File.separator + "lib" + libName + ".so";
@@ -293,7 +304,7 @@ public class Utils {
         return libName;
     }
 
-    public static String moduleApkPath = "";
+    private static String moduleApkPath;
 
     /**
      * 适配API level 20-29
@@ -303,20 +314,20 @@ public class Utils {
      *
      * @return apk包路径
      */
-    public static String getModuleApkPath() {
+    public static String getModuleApkPath() throws ModuleApkPathException {
         if (!TextUtils.isEmpty(moduleApkPath)) {
             return moduleApkPath;
         }
         String sourceDir = "";
         try {
             Class<?> contextImplClz = Class.forName("android.app.ContextImpl");
-            Object ctxtImpl = ContextImplUtil.getContextImpl();
+            Object ctxtImpl = ContextImplBuilder.BUILDER.getContextImpl();
             Method createPackageContextMethod = contextImplClz.getDeclaredMethod("createPackageContext", String.class, int.class);
             createPackageContextMethod.setAccessible(true);
             Context context = (Context) createPackageContextMethod.invoke(ctxtImpl, OuterHookEntry.MODULE_PACKAGE_NAME, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
             sourceDir = context.getPackageCodePath();
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            Utils.printThrowable(e);
+            throw new ModuleApkPathException("getModuleApkPath failed \n" + Utils.getThrowableInfo(e));
         }
         moduleApkPath = sourceDir;
         return sourceDir;
@@ -328,9 +339,9 @@ public class Utils {
      *
      * @return 模块路径
      */
-    public static String getModulePath() {
+    public static String getModulePath() throws ModuleApkPathException {
         String moduleApkPath = getModuleApkPath();
-        return moduleApkPath.substring(0, moduleApkPath.lastIndexOf("/"));
+        return moduleApkPath.substring(0, moduleApkPath.lastIndexOf('/'));
     }
 
     /**
@@ -342,12 +353,21 @@ public class Utils {
      */
     public static InputStream getInputStreamFromAssets(String basePath, String filePath) {
         if (!TextUtils.isEmpty(basePath)) {
+            ZipFile apkFile = null;
             try {
-                ZipFile apkFile = new ZipFile(basePath);
+                apkFile = new ZipFile(basePath);
                 ZipEntry fileEntry = apkFile.getEntry("assets/" + filePath);
                 return apkFile.getInputStream(fileEntry);
             } catch (IOException e) {
                 Utils.printThrowable(e);
+            } finally {
+                if (apkFile != null) {
+                    try {
+                        apkFile.close();
+                    } catch (IOException e) {
+                        Utils.printThrowable(e);
+                    }
+                }
             }
         }
         return null;
@@ -361,11 +381,15 @@ public class Utils {
      * @return 读到的byte[]
      */
     public static byte[] getBytesFromAssets(String basePath, String filePath) {
-        InputStream inputStream = getInputStreamFromAssets(basePath, filePath);
+
         byte[] buf = null;
-        try {
-            buf = new byte[inputStream.available()];
-            inputStream.read(buf);
+        try (
+                InputStream inputStream = getInputStreamFromAssets(basePath, filePath)
+        ) {
+            if (inputStream != null) {
+                buf = new byte[inputStream.available()];
+                inputStream.read(buf);
+            }
         } catch (IOException e) {
             Utils.printThrowable(e);
         }
@@ -375,16 +399,17 @@ public class Utils {
     /**
      * 从模块的assets下获取指定路径下文件内容
      *
-     * @param filePath 要读取的assets下的文件路径，路径中不包括assets
      * @return string
      */
-    private static String getStringFromAssets(String filePath) {
+    private static String getStringFromAssets() throws ModuleApkPathException {
         String str = "";
         String packagePath = getModuleApkPath();
-        InputStream inputStream = getInputStreamFromAssets(packagePath, filePath);
+        InputStream inputStream = getInputStreamFromAssets(packagePath, "hook_package.json");
         if (inputStream != null) {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            try (
+                    InputStreamReader in = new InputStreamReader(inputStream);
+                    BufferedReader br = new BufferedReader(in)
+            ) {
                 String line;
                 StringBuilder sb = new StringBuilder();
                 while ((line = br.readLine()) != null) {
@@ -418,7 +443,7 @@ public class Utils {
             try {
                 Object obj = field.get(object);
                 if (obj == null) {
-                    sb.append("[this object is null]");
+                    sb.append(OBJECT_NULL);
                 } else {
                     sb.append(getObjectString(obj));
                 }
@@ -445,11 +470,11 @@ public class Utils {
      */
     public static String getObjectInfo(Object object) {
         if (object == null) {
-            return "[this object is null]";
+            return OBJECT_NULL;
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append(getObjectHashCode(object));
-            sb.append(" --> ");
+            sb.append(OBJECT_CONCAT);
             sb.append(getObjectString(object));
             return sb.toString();
         }
@@ -503,29 +528,28 @@ public class Utils {
      * @param throwable
      */
     public static void printThrowable(Throwable throwable) {
-        StringBuilder sb = formatThrowable(throwable);
-        Logger.loge(sb.toString());
+        Logger.loge(getThrowableInfo(throwable));
     }
 
     /**
-     * 格式化Throwable的输出格式
+     * 拼接Throwable中的错误信息
      *
      * @param throwable
-     * @return StringBuilder
+     * @return Throwable 错误信息
      */
-    private static StringBuilder formatThrowable(Throwable throwable) {
+    public static String getThrowableInfo(Throwable throwable) {
         StringBuilder sb = new StringBuilder();
         sb.append(throwable.toString());
         sb.append("\n");
         sb.append(concatStackTrace(throwable.getStackTrace()));
         Throwable[] suppressed = throwable.getSuppressed();
         for (Throwable tw : suppressed) {
-            sb.append(formatThrowable(tw));
+            sb.append(getThrowableInfo(tw));
         }
         Throwable cause = throwable.getCause();
         if (cause != null) {
-            sb.append(formatThrowable(cause));
+            sb.append(getThrowableInfo(cause));
         }
-        return sb;
+        return sb.toString();
     }
 }

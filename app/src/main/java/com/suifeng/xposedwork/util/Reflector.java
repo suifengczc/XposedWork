@@ -1,7 +1,6 @@
 package com.suifeng.xposedwork.util;
 
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -17,7 +16,9 @@ import java.lang.reflect.Modifier;
  * https://github.com/didi/VirtualAPK/blob/master/CoreLibrary/src/main/java/com/didi/virtualapk/utils/Reflector.java
  * Created by qiaopu on 2018/4/26.
  */
-public class Reflector implements Cloneable{
+public class Reflector {
+
+    private static final String REFLECTOR_THROWABLE = "Reflector Throwable";
 
     protected Class<?> mType;
     protected Object mCaller;
@@ -48,8 +49,8 @@ public class Reflector implements Cloneable{
     public static Reflector on(@NonNull String name, boolean initialize, @Nullable ClassLoader loader) throws ReflectedException {
         try {
             return on(Class.forName(name, initialize, loader));
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (Exception e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -74,8 +75,8 @@ public class Reflector implements Cloneable{
             mField = null;
             mMethod = null;
             return this;
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (Exception e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -86,10 +87,8 @@ public class Reflector implements Cloneable{
         }
         try {
             return (R) mConstructor.newInstance(initargs);
-        } catch (InvocationTargetException e) {
-            throw new ReflectedException("Oops!", e.getTargetException());
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -127,8 +126,8 @@ public class Reflector implements Cloneable{
             mConstructor = null;
             mMethod = null;
             return this;
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (Exception e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -157,9 +156,10 @@ public class Reflector implements Cloneable{
         check(caller, mField, "Field");
         try {
             return (R) mField.get(caller);
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (IllegalAccessException e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
+
     }
 
     public Reflector set(@Nullable Object value) throws ReflectedException {
@@ -171,8 +171,8 @@ public class Reflector implements Cloneable{
         try {
             mField.set(caller, value);
             return this;
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (IllegalAccessException e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -184,7 +184,7 @@ public class Reflector implements Cloneable{
             mField = null;
             return this;
         } catch (NoSuchMethodException e) {
-            throw new ReflectedException("Oops!", e);
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -212,10 +212,8 @@ public class Reflector implements Cloneable{
         check(caller, mMethod, "Method");
         try {
             return (R) mMethod.invoke(caller, args);
-        } catch (InvocationTargetException e) {
-            throw new ReflectedException("Oops!", e.getTargetException());
-        } catch (Throwable e) {
-            throw new ReflectedException("Oops!", e);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new ReflectedException(REFLECTOR_THROWABLE, e);
         }
     }
 
@@ -236,8 +234,7 @@ public class Reflector implements Cloneable{
             try {
                 cls = Class.forName(name, initialize, loader);
                 return on(cls, null);
-            } catch (Throwable e) {
-//                Log.w(LOG_TAG, "Oops!", e);
+            } catch (Exception e) {
                 return on(cls, e);
             }
         }
@@ -284,9 +281,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 super.constructor(parameterTypes);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return this;
         }
@@ -299,9 +295,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 return super.newInstance(initargs);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return null;
         }
@@ -314,9 +309,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 super.bind(obj);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return this;
         }
@@ -335,9 +329,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 super.field(name);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return this;
         }
@@ -350,9 +343,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 return super.get();
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return null;
         }
@@ -365,9 +357,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 return super.get(caller);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return null;
         }
@@ -380,9 +371,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 super.set(value);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return this;
         }
@@ -395,9 +385,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 super.set(caller, value);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return this;
         }
@@ -410,9 +399,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 super.method(name, parameterTypes);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return this;
         }
@@ -425,9 +413,8 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 return super.call(args);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return null;
         }
@@ -440,18 +427,20 @@ public class Reflector implements Cloneable{
             try {
                 mIgnored = null;
                 return super.callByCaller(caller, args);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 mIgnored = e;
-//                Log.w(LOG_TAG, "Oops!", e);
             }
             return null;
         }
     }
 
-    @NonNull
-    @Override
-    public Reflector clone() throws CloneNotSupportedException {
-        Reflector ref = (Reflector) super.clone();
-        return ref;
+    public Reflector clone(Reflector source) {
+        Reflector dest = new Reflector();
+        dest.mType = source.mType;
+        dest.mCaller = source.mCaller;
+        dest.mConstructor = source.mConstructor;
+        dest.mField = source.mField;
+        dest.mMethod = source.mMethod;
+        return dest;
     }
 }

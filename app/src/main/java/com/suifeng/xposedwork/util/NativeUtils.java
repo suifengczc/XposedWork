@@ -8,9 +8,8 @@ package com.suifeng.xposedwork.util;
  */
 public class NativeUtils {
 
-//    static {
-//        System.loadLibrary("nativesupport");
-//    }
+    private NativeUtils() {
+    }
 
     public static void loadLibrary() {
         try {
@@ -20,6 +19,12 @@ public class NativeUtils {
         }
     }
 
+    /**
+     * 由jni完成String拼接，避免java层hook了String的拼接又有java代码调用了String的拼接导致crash
+     *
+     * @param str
+     * @return
+     */
     public static native String concatString(String... str);
 
 }

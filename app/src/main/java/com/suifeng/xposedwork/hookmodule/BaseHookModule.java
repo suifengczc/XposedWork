@@ -1,8 +1,9 @@
 package com.suifeng.xposedwork.hookmodule;
 
+import com.suifeng.xposedwork.util.Logger;
+import com.suifeng.xposedwork.util.Utils;
 import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
-import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public abstract class BaseHookModule {
 
     /**
      * @param classLoader 这里传入的是当前的classloader
-     * @param filter 包名筛选，指定HookModule对特定的包生效，为空时对所有包生效
+     * @param filter      包名筛选，指定HookModule对特定的包生效，为空时对所有包生效
      */
     public BaseHookModule(ClassLoader classLoader, PackageNameFilter filter) {
         hookDatas = new ArrayList<>();
@@ -71,6 +72,7 @@ public abstract class BaseHookModule {
 
     /**
      * 判断当前hook到的包名是否符合当前HookModule的目标包名
+     *
      * @param packageName Xposed当前hook到的包名
      * @return true表示对当前包执行hook
      */
@@ -81,15 +83,16 @@ public abstract class BaseHookModule {
     /**
      * hook 插件中的类时可能需要用到插件中的其他类
      *
-     * @param cls
+     * @param clz
      * @return 需要加载的Class
-     * @throws ClassNotFoundException
      */
-    protected Class loadClass(String cls) {
+    protected Class loadClass(String clz) {
         try {
-            return classLoader.loadClass(cls);
+            return classLoader.loadClass(clz);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            Logger.loge(this.getClass().getName() + "attempt to load " + clz + " failed");
+            Utils.printThrowable(e);
         }
+        return null;
     }
 }

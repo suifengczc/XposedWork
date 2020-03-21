@@ -1,5 +1,7 @@
 package com.suifeng.xposedwork.util.filter;
 
+import com.suifeng.xposedwork.util.exception.ConditionTypeException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -44,27 +46,24 @@ public class PackageNameFilter implements Filter<String> {
      * @param condition 添加的条件
      * @return
      */
-    public PackageNameFilter add(Object condition) {
+    public PackageNameFilter add(Object condition) throws ConditionTypeException {
         if (condition instanceof String || condition instanceof Pattern) {
             this.allowedPackageName.add(condition);
             return this;
         }
-        throw new RuntimeException("condition not allowed");
+        throw new ConditionTypeException(condition.getClass().getSimpleName() + " is not allowed here");
     }
 
     @Override
     public boolean filter(String checkPackageName) {
-        if (allowedPackageName != null && !allowedPackageName.isEmpty()) {
-            for (Object obj : allowedPackageName) {
-                if (obj instanceof String) {
-                    if (((String) obj).equals(checkPackageName)) {
-                        return true;
-                    }
-                } else if (obj instanceof Pattern) {
-                    if (((Pattern) obj).matcher(checkPackageName).find()) {
-                        return true;
-                    }
-                }
+        if (allowedPackageName.isEmpty()) {
+            return true;
+        }
+        for (Object obj : allowedPackageName) {
+            if (obj instanceof String) {
+                return ((String) obj).equals(checkPackageName);
+            } else {
+                return ((Pattern) obj).matcher(checkPackageName).find();
             }
         }
         return false;

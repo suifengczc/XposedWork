@@ -4,13 +4,16 @@ import android.app.Application;
 import android.content.Context;
 
 import com.suifeng.xposedwork.util.Utils;
+import com.suifeng.xposedwork.util.exception.ModuleApkNotFoundException;
+import com.suifeng.xposedwork.util.exception.ModuleApkPathException;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import dalvik.system.PathClassLoader;
 import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
@@ -20,13 +23,12 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  *
  * @author suifengczc
  */
-public class OuterHookEntry implements IXposedHookLoadPackage, IXposedHookZygoteInit {
-    private StartupParam startupparam;
+public class OuterHookEntry implements IXposedHookLoadPackage {
 
     /**
      * 当前Xposed模块的包名,方便寻找apk文件
      */
-    public final static String MODULE_PACKAGE_NAME = "com.suifeng.xposedwork";
+    public static final String MODULE_PACKAGE_NAME = "com.suifeng.xposedwork";
     /**
      * 实际hook逻辑处理类
      */
@@ -34,31 +36,39 @@ public class OuterHookEntry implements IXposedHookLoadPackage, IXposedHookZygote
     /**
      * 实际hook逻辑处理类的入口方法
      */
-    private final String handleHookMethod = "handleLoadPackage";
+    private static final String handleHookMethod = "handleLoadPackage";
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+
+        List<String> packageList = null;
         try {
-            List<String> packageList = Utils.getHookPackageList();
-            if (packageList.size() == 0) {
-                return;
-            }
-            //将loadPackageParam的classloader替换为宿主程序Application的classloader,解决宿主程序存在多个.dex文件时,有时候ClassNotFound的问题
-            if (packageList.contains(loadPackageParam.packageName)) {
-                XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+            packageList = Utils.getHookPackageList();
+        } catch (ModuleApkPathException e) {
+            Utils.printThrowable(e);
+        }
+        if (packageList != null && packageList.isEmpty()) {
+            return;
+        }
+        //将loadPackageParam的classloader替换为宿主程序Application的classloader,解决宿主程序存在多个.dex文件时,有时候ClassNotFound的问题
+        if (packageList.contains(loadPackageParam.packageName)) {
+            XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    try {
                         Context context = (Context) param.args[0];
                         loadPackageParam.classLoader = context.getClassLoader();
                         Class<?> cls = getInnerClass(handleHookClass);
-                        Object instance = cls.newInstance();
+                        Method getInstanceMethod = cls.getDeclaredMethod("getInstance");
+                        Object instance = getInstanceMethod.invoke(null);
                         cls.getDeclaredMethod(handleHookMethod, loadPackageParam.getClass()).invoke(instance, loadPackageParam);
+                    } catch (ModuleApkNotFoundException | IllegalAccessException | ClassNotFoundException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                        Utils.printThrowable(e);
                     }
-                });
-            }
-        } catch (Throwable e) {
-            Utils.printThrowable(e);
+                }
+            });
         }
+
 
     }
 
@@ -66,24 +76,19 @@ public class OuterHookEntry implements IXposedHookLoadPackage, IXposedHookZygote
     /**
      * 获取内部入口的Class
      *
-     * @param handleHookClass
+     * @param innerEntryClassName 内部入口类名
      * @return
-     * @throws Throwable
+     * @throws ModuleApkNotFoundException 获取Xposed模块实际路径失败
+     * @throws ClassNotFoundException
      */
-    private Class<?> getInnerClass(String handleHookClass) throws Throwable {
+    private Class<?> getInnerClass(String innerEntryClassName) throws ModuleApkNotFoundException, ClassNotFoundException, ModuleApkPathException {
         File apkFile = new File(Utils.getModuleApkPath());
-        if (apkFile == null) {
-            throw new RuntimeException("寻找模块apk失败");
+        if (!apkFile.exists()) {
+            throw new ModuleApkNotFoundException("寻找模块apk失败");
         }
         //加载指定的hook逻辑处理类，并调用它的handleHook方法
         PathClassLoader pathClassLoader = new PathClassLoader(apkFile.getAbsolutePath(), ClassLoader.getSystemClassLoader());
-        return pathClassLoader.loadClass(handleHookClass);
-    }
-
-
-    @Override
-    public void initZygote(StartupParam startupParam) throws Throwable {
-        startupparam = startupParam;
+        return pathClassLoader.loadClass(innerEntryClassName);
     }
 
 

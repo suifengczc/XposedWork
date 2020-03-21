@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.suifeng.xposedwork.hookmodule.BaseHookModule;
+import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.hookmodule.HookMethodData;
 import com.suifeng.xposedwork.hookmodule.HookType;
 import com.suifeng.xposedwork.util.Logger;
@@ -29,7 +30,7 @@ public class Hook_Activity extends BaseHookModule {
     @Override
     protected void init() {
         className = "android.app.Activity";
-        hookDatas.add(new HookMethodData("startActivity", HookType.HOOK_NORMAL_METHOD,
+        hookDatas.add(HookHelper.hookMethod("startActivity",
                 Intent.class, Bundle.class,
                 new XC_MethodHook() {
                     @Override

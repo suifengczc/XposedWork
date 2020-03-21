@@ -4,10 +4,13 @@ import com.suifeng.xposedwork.hookmodule.BaseHookModule;
 import com.suifeng.xposedwork.hookmodule.HookHelper;
 import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.NativeUtils;
+import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import de.robv.android.xposed.XC_MethodHook;
 
 /**
+ * hook 系统类示例
+ *
  * @author suifengczc
  * @date 2020/2/23
  */

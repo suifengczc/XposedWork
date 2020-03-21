@@ -6,7 +6,6 @@ import com.suifeng.xposedwork.util.Logger;
 import com.suifeng.xposedwork.util.Utils;
 
 import java.util.List;
-import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -18,82 +17,107 @@ import de.robv.android.xposed.XposedHelpers;
  * @author suifengczc
  */
 public class HookHelper {
+
+    private HookHelper() {
+    }
+
     /**
      * 读取HookModule的HookData处理具体的hook方式
      *
      * @param classLoader 加载被hook类的ClassLoader
      * @param hookModules 需要hook的模块
      */
-    public static void dealHook(ClassLoader classLoader, Map<String, BaseHookModule> hookModules) {
-        for (Map.Entry<String, BaseHookModule> next : hookModules.entrySet()) {
-            String clzName = next.getKey();
-            BaseHookModule hookModule = next.getValue();
+    public static void dealHook(ClassLoader classLoader, List<BaseHookModule> hookModules) {
+        for (BaseHookModule hookModule : hookModules) {
+            String clzName = hookModule.className;
             String packageName = AndroidAppHelper.currentPackageName();
-            if (hookModule != null && hookModule.checkPackageName(packageName)) {
+            if (hookModule.checkPackageName(packageName)) {
                 List<HookData> hookDatas = hookModule.getHookDatas();
                 for (HookData hookData : hookDatas) {
-                    if (hookData.hookType == HookType.HOOK_NORMAL_METHOD
-                            || hookData.hookType == HookType.HOOK_REPLACE_METHOD) {
-                        HookMethodData hookMethodData = (HookMethodData) hookData;
-                        XposedHelpers.findAndHookMethod(clzName,
-                                classLoader,
-                                hookMethodData.hookTarget,
-                                hookMethodData.hookVariableParams);
-                    } else if (hookData.hookType == HookType.HOOK_NORMAL_INIT
-                            || hookData.hookType == HookType.HOOK_REPLACE_INIT) {
-                        HookMethodData hookMethodData = (HookMethodData) hookData;
-                        XposedHelpers.findAndHookConstructor(clzName,
-                                classLoader,
-                                hookMethodData.hookVariableParams);
-                    } else if (hookData.hookType == HookType.HOOK_ALL_INIT
-                            || hookData.hookType == HookType.HOOK_REPLACE_ALL_INIT) {
-                        HookMethodData hookMethodData = (HookMethodData) hookData;
-                        try {
-                            XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookMethodData.getXcMethodHook());
-                        } catch (ClassNotFoundException e) {
-                            Logger.loge("dealHook: when hookNormalClass cant found class " + clzName);
-                        }
-                    } else if (hookData.hookType == HookType.HOOK_ALL_METHOD
-                            || hookData.hookType == HookType.HOOK_REPLACE_ALL_METHOD) {
-                        HookMethodData hookMethodData = (HookMethodData) hookData;
-                        try {
-                            XposedBridge.hookAllMethods(classLoader.loadClass(clzName), hookMethodData.hookTarget, hookMethodData.getXcMethodHook());
-                        } catch (ClassNotFoundException e) {
-                            Logger.loge("dealHook: when hookNormalClass cant found class " + clzName);
-                        }
-                    } else if (hookData.hookType == HookType.HOOK_GET_STATIC_FIELD) {
-                        Object staticObjectField;
-                        try {
-                            staticObjectField = XposedHelpers.findField(classLoader.loadClass(clzName), hookData.hookTarget).get(null);
-                        } catch (ClassNotFoundException e) {
-                            Logger.loge("dealHook: when hookNormalClass cant found class " + clzName);
-                            return;
-                        } catch (IllegalAccessException e) {
-                            Utils.printThrowable(e);
-                            return;
-                        }
-                        HookFieldData hookFieldData = (HookFieldData) hookData;
-                        if (hookFieldData.callback != null) {
-                            hookFieldData.callback.done(staticObjectField);
-                        } else {
-                            Logger.loge("dealHook: hook " + clzName + " get " + hookFieldData.hookTarget + " == " + staticObjectField);
-                        }
-                    } else if (hookData.hookType == HookType.HOOK_SET_STATIC_FIELD) {
-                        HookFieldData fieldData = (HookFieldData) hookData;
-                        try {
-                            XposedHelpers.findField(classLoader.loadClass(clzName), fieldData.hookTarget).set(null, fieldData.valueForSet);
-                        } catch (IllegalAccessException | ClassNotFoundException e) {
-                            Utils.printThrowable(e);
-                            return;
-                        }
-                        if (fieldData.callback != null) {
-                            fieldData.callback.done(null);
-                        } else {
-                            Logger.logi("dealHook: hook " + clzName + " set " + fieldData.hookTarget + " to " + fieldData.valueForSet);
-                        }
-                    }
+                    handleHookData(clzName, hookData, classLoader);
                 }
             }
+        }
+    }
+
+    private static void handleHookData(String clzName, HookData hookData, ClassLoader classLoader) {
+        switch (hookData.hookType) {
+            case HOOK_NORMAL_METHOD:
+            case HOOK_REPLACE_METHOD: {
+                HookMethodData hookMethodData = (HookMethodData) hookData;
+                XposedHelpers.findAndHookMethod(clzName,
+                        classLoader,
+                        hookMethodData.hookTarget,
+                        hookMethodData.hookVariableParams);
+                break;
+            }
+            case HOOK_NORMAL_INIT:
+            case HOOK_REPLACE_INIT: {
+                HookMethodData hookMethodData = (HookMethodData) hookData;
+                XposedHelpers.findAndHookConstructor(clzName,
+                        classLoader,
+                        hookMethodData.hookVariableParams);
+                break;
+            }
+            case HOOK_ALL_INIT:
+            case HOOK_REPLACE_ALL_INIT: {
+                HookMethodData hookMethodData = (HookMethodData) hookData;
+                try {
+                    XposedBridge.hookAllConstructors(classLoader.loadClass(clzName), hookMethodData.getXcMethodHook());
+                } catch (ClassNotFoundException e) {
+                    Logger.loge("dealHook: when hookNormalClass cant found class " + clzName);
+                }
+                break;
+            }
+            case HOOK_ALL_METHOD:
+            case HOOK_REPLACE_ALL_METHOD: {
+                HookMethodData hookMethodData = (HookMethodData) hookData;
+                try {
+                    XposedBridge.hookAllMethods(classLoader.loadClass(clzName), hookMethodData.hookTarget, hookMethodData.getXcMethodHook());
+                } catch (ClassNotFoundException e) {
+                    Logger.loge("dealHook: when hookNormalClass cant found class " + clzName);
+                }
+                break;
+            }
+            case HOOK_GET_STATIC_FIELD:
+                Object staticObjectField;
+                HookFieldData hookFieldData = (HookFieldData) hookData;
+                try {
+                    staticObjectField = XposedHelpers.findField(classLoader.loadClass(clzName), hookData.hookTarget).get(null);
+                } catch (ClassNotFoundException | IllegalAccessException e) {
+                    if (hookFieldData.callback != null) {
+                        hookFieldData.callback.done(Utils.getThrowableInfo(e));
+                    } else {
+                        Utils.printThrowable(e);
+                    }
+                    break;
+                }
+                if (hookFieldData.callback != null) {
+                    hookFieldData.callback.done(staticObjectField);
+                } else {
+                    Logger.loge("dealHook: hook " + clzName + " get " + hookFieldData.hookTarget + " == " + staticObjectField);
+                }
+                break;
+            case HOOK_SET_STATIC_FIELD:
+                HookFieldData fieldData = (HookFieldData) hookData;
+                try {
+                    XposedHelpers.findField(classLoader.loadClass(clzName), fieldData.hookTarget).set(null, fieldData.valueForSet);
+                } catch (IllegalAccessException | ClassNotFoundException e) {
+                    if (fieldData.callback != null) {
+                        fieldData.callback.done(Utils.getThrowableInfo(e));
+                    } else {
+                        Utils.printThrowable(e);
+                    }
+                    break;
+                }
+                if (fieldData.callback != null) {
+                    fieldData.callback.done(null);
+                } else {
+                    Logger.logi("dealHook: hook " + clzName + " set " + fieldData.hookTarget + " to " + fieldData.valueForSet);
+                }
+                break;
+            default:
+                break;
         }
     }
 

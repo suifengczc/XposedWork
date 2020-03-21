@@ -4,8 +4,13 @@ import android.util.Log;
 
 /**
  * 简单封装log
+ *
+ * @author suifengczc
  */
 public class Logger {
+    private Logger() {
+    }
+
     public static final String TAG = "HookDemo";
 
     public static void logi(String msg) {

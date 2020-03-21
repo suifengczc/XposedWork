@@ -18,16 +18,16 @@ import java.util.Map;
  * @author suifengczc
  * @date 2020/3/12
  */
-public class ContextImplUtil {
+class ContextImplBuilder {
+    public static final ContextImplBuilder BUILDER = new ContextImplBuilder();
     private static Map<Integer, ContextImplParam> contextImplParamMap = new HashMap<>();
 
+    private Class<?> contextImplClz;
+    private Class<?> actThreadClz;
+    private Class<?> loadedApkClz;
+    private Object loadedApk;
 
-    private static Class<?> contextImplClz;
-    private static Class<?> actThreadClz;
-    private static Class<?> loadedApkClz;
-    private static Object loadedApk;
-
-    static {
+    private ContextImplBuilder() {
         try {
             contextImplClz = Class.forName("android.app.ContextImpl");
             actThreadClz = Class.forName("android.app.ActivityThread");
@@ -40,7 +40,7 @@ public class ContextImplUtil {
             loadedapkConstructor.setAccessible(true);
             loadedApk = loadedapkConstructor.newInstance(mainThread);
             contextImplParamMap.put(20,
-                    new ContextImplParam(20,
+                    new ContextImplParam(
                             new Class[]{
                                     contextImplClz,
                                     actThreadClz,
@@ -64,7 +64,7 @@ public class ContextImplUtil {
                     )
             );
             contextImplParamMap.put(23,
-                    new ContextImplParam(23, new Class[]{
+                    new ContextImplParam(new Class[]{
                             contextImplClz,
                             actThreadClz,
                             loadedApkClz,
@@ -89,7 +89,7 @@ public class ContextImplUtil {
                     )
             );
             contextImplParamMap.put(24,
-                    new ContextImplParam(24,
+                    new ContextImplParam(
                             new Class[]{
                                     contextImplClz,
                                     actThreadClz,
@@ -115,7 +115,7 @@ public class ContextImplUtil {
                     )
             );
             contextImplParamMap.put(26,
-                    new ContextImplParam(26,
+                    new ContextImplParam(
                             new Class[]{
                                     contextImplClz,
                                     actThreadClz,
@@ -139,7 +139,7 @@ public class ContextImplUtil {
                     )
             );
             contextImplParamMap.put(29,
-                    new ContextImplParam(29,
+                    new ContextImplParam(
                             new Class[]{
                                     contextImplClz,
                                     actThreadClz,
@@ -170,13 +170,21 @@ public class ContextImplUtil {
         }
     }
 
-    static class ContextImplParam {
-        int sdkVersion;
+
+    /**
+     * ContextImpl相关数据类
+     */
+    private class ContextImplParam {
+        /**
+         * ContextImpl构造函数的传参类型数组
+         */
         Class[] paramType;
+        /**
+         * ContextImpl构造函数的实参数组
+         */
         Object[] paramValue;
 
-        ContextImplParam(int sdkVersino, Class[] paramType, Object[] paramValue) {
-            this.sdkVersion = sdkVersion;
+        ContextImplParam(Class[] paramType, Object[] paramValue) {
             this.paramType = paramType;
             this.paramValue = paramValue;
         }
@@ -189,7 +197,7 @@ public class ContextImplUtil {
      * @param sdkVersion sdkversion
      * @return
      */
-    public static ContextImplParam getParamBySdk(int sdkVersion) {
+    public static ContextImplParam getParamBySdkInt(int sdkVersion) {
         switch (sdkVersion) {
             case 20:
             case 21:
@@ -206,8 +214,9 @@ public class ContextImplUtil {
                 return contextImplParamMap.get(26);
             case 29:
                 return contextImplParamMap.get(29);
+            default:
+                throw new UnsupportedOperationException("ContextImplUtill getParamBySDKInt unsupport sdk version = " + sdkVersion);
         }
-        throw new RuntimeException("unsupport sdk version = " + sdkVersion);
     }
 
     /**
@@ -215,10 +224,10 @@ public class ContextImplUtil {
      *
      * @return
      */
-    public static Object getContextImpl() {
+    public Object getContextImpl() {
         Object ctxtImpl = null;
         try {
-            ContextImplParam contextImplParam = getParamBySdk(Build.VERSION.SDK_INT);
+            ContextImplParam contextImplParam = getParamBySdkInt(Build.VERSION.SDK_INT);
             Constructor ctxtImplConstructor = contextImplClz.getDeclaredConstructor(contextImplParam.paramType);
             ctxtImplConstructor.setAccessible(true);
             ctxtImpl = ctxtImplConstructor.newInstance(contextImplParam.paramValue);

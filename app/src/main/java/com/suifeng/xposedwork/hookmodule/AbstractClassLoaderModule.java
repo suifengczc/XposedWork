@@ -6,6 +6,7 @@ import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,9 +54,8 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
         if (loader == null) {
             return;
         }
-        HookList hookPluginClassList = getPluginHookList(loader);
-        Map<String, BaseHookModule> hookModules = hookPluginClassList.getHookModules();
-        HookHelper.dealHook(loader, hookModules);
+        List<BaseHookModule> hookPluginClassList = getPluginHookList(loader);
+        HookHelper.dealHook(loader, hookPluginClassList);
     }
 
     /**
@@ -63,15 +63,15 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
      *
      * @return HookList
      */
-    private HookList getPluginHookList(ClassLoader loader) {
-        List<Class> hookPluginClassList = InnerHookEntry.getHookPluginClassList();
-        HookList hookList = new HookList();
+    private List getPluginHookList(ClassLoader loader) {
+        List<Class> hookPluginClassList = InnerHookEntry.getInstance().getHookPluginClassList();
+        List<BaseHookModule> hookList = new ArrayList<>();
         for (Class aClass : hookPluginClassList) {
             try {
                 //获取hook类的HookModule的构造方法反射创建实例
                 Constructor constructor = aClass.getConstructor(ClassLoader.class);
                 BaseHookModule hookModule = (BaseHookModule) constructor.newInstance(loader);
-                hookList.addHookModule(hookModule);
+                hookList.add(hookModule);
             } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                 Utils.printThrowable(e);
             }
