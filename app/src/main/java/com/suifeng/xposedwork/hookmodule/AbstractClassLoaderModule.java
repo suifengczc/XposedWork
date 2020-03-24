@@ -2,8 +2,10 @@ package com.suifeng.xposedwork.hookmodule;
 
 import com.suifeng.xposedwork.hookentry.InnerHookEntry;
 import com.suifeng.xposedwork.util.Utils;
+import com.suifeng.xposedwork.util.exception.ModuleApkPathException;
 import com.suifeng.xposedwork.util.filter.PackageNameFilter;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
      *
      * @param param 各种ClassLoader构造方法的MethodHookParam
      */
-    protected void hookPluginClasses(XC_MethodHook.MethodHookParam param) {
+    protected void hookPluginClasses(XC_MethodHook.MethodHookParam param) throws IOException, ModuleApkPathException {
         if (param.hasThrowable()) {
             return;
         }
@@ -63,7 +65,7 @@ public abstract class AbstractClassLoaderModule extends BaseHookModule {
      *
      * @return HookList
      */
-    private List getPluginHookList(ClassLoader loader) {
+    private List getPluginHookList(ClassLoader loader) throws IOException, ModuleApkPathException {
         List<Class> hookPluginClassList = InnerHookEntry.getInstance().getHookPluginClassList();
         List<BaseHookModule> hookList = new ArrayList<>();
         for (Class aClass : hookPluginClassList) {

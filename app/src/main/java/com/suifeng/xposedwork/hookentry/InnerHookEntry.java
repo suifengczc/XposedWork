@@ -8,6 +8,7 @@ import com.suifeng.xposedwork.util.NativeUtils;
 import com.suifeng.xposedwork.util.Utils;
 import com.suifeng.xposedwork.util.exception.ModuleApkPathException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
  * @author suifengczc
  */
 public class InnerHookEntry implements IXposedHookLoadPackage {
-    private static InnerHookEntry INSTANCE = null;
+    private static InnerHookEntry instance = null;
 
     /**
      * 需要hook的包名list
@@ -35,22 +36,19 @@ public class InnerHookEntry implements IXposedHookLoadPackage {
      */
     private List<Class> hookPluginClassList;
 
-    public static InnerHookEntry getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new InnerHookEntry();
+    public static InnerHookEntry getInstance() throws IOException, ModuleApkPathException {
+        if (instance == null) {
+            instance = new InnerHookEntry();
         }
-        return INSTANCE;
+        return instance;
     }
 
-    private InnerHookEntry() {
+    private InnerHookEntry() throws IOException, ModuleApkPathException {
         //因为是动态加载的xposed模块，所以在内部入口加载lib，如果在HookMain中加载lib会导致找不到对应native方法
         NativeUtils.loadLibrary();
         //从hook_package.json中获取需要hook的包名
-        try {
-            hookPackageName = Utils.getHookPackageList();
-        } catch (ModuleApkPathException e) {
-            e.printStackTrace();
-        }
+        hookPackageName = Utils.getHookPackageList();
+
 
         //plugin hook
         hookPluginClassList = new ArrayList<>();

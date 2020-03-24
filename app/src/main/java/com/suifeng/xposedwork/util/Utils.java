@@ -10,18 +10,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import de.robv.android.xposed.XC_MethodHook;
 
@@ -276,8 +271,9 @@ public class Utils {
      *
      * @return 包名list
      */
-    public static List<String> getHookPackageList() throws ModuleApkPathException {
-        String config = getStringFromAssets();
+    public static List<String> getHookPackageList() throws ModuleApkPathException, IOException {
+        AssetsReader assetsReader = new AssetsReader();
+        String config = assetsReader.getStringFromAssets("hook_package.json", true);
         List<String> packageList = new ArrayList<>();
         if (!TextUtils.isEmpty(config)) {
             JSONObject jsonObject;
@@ -342,85 +338,6 @@ public class Utils {
     public static String getModulePath() throws ModuleApkPathException {
         String moduleApkPath = getModuleApkPath();
         return moduleApkPath.substring(0, moduleApkPath.lastIndexOf('/'));
-    }
-
-    /**
-     * 从assets下读取文件内容
-     *
-     * @param basePath base.apk路径
-     * @param filePath 文件在assets下的路径
-     * @return 读到的文件InputStream
-     */
-    public static InputStream getInputStreamFromAssets(String basePath, String filePath) {
-        if (!TextUtils.isEmpty(basePath)) {
-            ZipFile apkFile = null;
-            try {
-                apkFile = new ZipFile(basePath);
-                ZipEntry fileEntry = apkFile.getEntry("assets/" + filePath);
-                return apkFile.getInputStream(fileEntry);
-            } catch (IOException e) {
-                Utils.printThrowable(e);
-            } finally {
-                if (apkFile != null) {
-                    try {
-                        apkFile.close();
-                    } catch (IOException e) {
-                        Utils.printThrowable(e);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 从assets下读取文件内容返回byte[]
-     *
-     * @param basePath base.apk路径
-     * @param filePath 文件在assets下的路径
-     * @return 读到的byte[]
-     */
-    public static byte[] getBytesFromAssets(String basePath, String filePath) {
-
-        byte[] buf = null;
-        try (
-                InputStream inputStream = getInputStreamFromAssets(basePath, filePath)
-        ) {
-            if (inputStream != null) {
-                buf = new byte[inputStream.available()];
-                inputStream.read(buf);
-            }
-        } catch (IOException e) {
-            Utils.printThrowable(e);
-        }
-        return buf;
-    }
-
-    /**
-     * 从模块的assets下获取指定路径下文件内容
-     *
-     * @return string
-     */
-    private static String getStringFromAssets() throws ModuleApkPathException {
-        String str = "";
-        String packagePath = getModuleApkPath();
-        InputStream inputStream = getInputStreamFromAssets(packagePath, "hook_package.json");
-        if (inputStream != null) {
-            try (
-                    InputStreamReader in = new InputStreamReader(inputStream);
-                    BufferedReader br = new BufferedReader(in)
-            ) {
-                String line;
-                StringBuilder sb = new StringBuilder();
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-                str = sb.toString();
-            } catch (IOException e) {
-                Utils.printThrowable(e);
-            }
-        }
-        return str;
     }
 
     /**

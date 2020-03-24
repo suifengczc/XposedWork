@@ -20,7 +20,7 @@ import java.util.Map;
  */
 class ContextImplBuilder {
     public static final ContextImplBuilder BUILDER = new ContextImplBuilder();
-    private static Map<Integer, ContextImplParam> contextImplParamMap = new HashMap<>();
+    private Map<Integer, ContextImplParam> contextImplParamMap = new HashMap<>();
 
     private Class<?> contextImplClz;
     private Class<?> actThreadClz;
@@ -197,7 +197,7 @@ class ContextImplBuilder {
      * @param sdkVersion sdkversion
      * @return
      */
-    public static ContextImplParam getParamBySdkInt(int sdkVersion) {
+    public ContextImplParam getParamBySdkInt(int sdkVersion) {
         switch (sdkVersion) {
             case 20:
             case 21:
